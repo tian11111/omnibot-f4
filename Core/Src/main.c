@@ -22,7 +22,9 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include "app_control.h"
+#include "bluetooth.h"
+#include "motor.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
