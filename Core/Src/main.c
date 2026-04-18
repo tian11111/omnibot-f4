@@ -22,9 +22,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "app_control.h"
-#include "bluetooth.h"
-#include "motor.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -96,6 +94,9 @@ int main(void)
   MX_USART3_UART_Init();
   MX_I2C1_Init();
   MX_TIM1_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
