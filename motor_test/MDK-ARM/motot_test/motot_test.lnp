@@ -1,0 +1,27 @@
+--cpu=Cortex-M4.fp
+"motot_test\startup_stm32f407xx.o"
+"motot_test\motor_driver_emm42.o"
+"motot_test\main.o"
+"motot_test\stm32f4xx_it.o"
+"motot_test\stm32f4xx_hal_msp.o"
+"motot_test\stm32f4xx_hal_tim.o"
+"motot_test\stm32f4xx_hal_tim_ex.o"
+"motot_test\stm32f4xx_hal_uart.o"
+"motot_test\stm32f4xx_hal_rcc.o"
+"motot_test\stm32f4xx_hal_rcc_ex.o"
+"motot_test\stm32f4xx_hal_flash.o"
+"motot_test\stm32f4xx_hal_flash_ex.o"
+"motot_test\stm32f4xx_hal_flash_ramfunc.o"
+"motot_test\stm32f4xx_hal_gpio.o"
+"motot_test\stm32f4xx_hal_dma_ex.o"
+"motot_test\stm32f4xx_hal_dma.o"
+"motot_test\stm32f4xx_hal_pwr.o"
+"motot_test\stm32f4xx_hal_pwr_ex.o"
+"motot_test\stm32f4xx_hal_cortex.o"
+"motot_test\stm32f4xx_hal.o"
+"motot_test\stm32f4xx_hal_exti.o"
+"motot_test\system_stm32f4xx.o"
+--strict --scatter "motot_test\motot_test.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "motot_test.map" -o motot_test\motot_test.axf
