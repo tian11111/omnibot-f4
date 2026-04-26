@@ -37,6 +37,3 @@
 .\main.o: ../Core/Inc/tim.h
 .\main.o: ../Core/Inc/usart.h
 .\main.o: ../Core/Inc/gpio.h
-.\main.o: ../Core/Inc/app_control.h
-.\main.o: ../Core/Inc/bluetooth.h
-.\main.o: ../Core/Inc/motor.h

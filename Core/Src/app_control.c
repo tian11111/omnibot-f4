@@ -1,6 +1,6 @@
 #include "app_control.h"
-#include "bsp_bluetooth.h"
-#include "bsp_mecanum.h"
+#include "bluetooth.h"
+#include "motor.h"
 
 #include <stdio.h>
 #include <string.h>
