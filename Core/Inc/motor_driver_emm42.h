@@ -47,7 +47,7 @@ typedef struct
 } Emm42_Handle;
 
 /* -----------------------------------------------------------------------
- * 函数声明
+ * 函数声明  handle 是电机对象，huart 是用哪个串口，id_addr 是驱动器地址，ccw 是方向，rpm 是转速，accel 是加速度档位，pulses 是脉冲数，sync 是是否等待同步启动。
  * ----------------------------------------------------------------------- */
 
 Emm42_Status Emm42_Init(Emm42_Handle *handle,
@@ -82,13 +82,9 @@ Emm42_Status Emm42_StopNow(Emm42_Handle *handle,
 Emm42_Status Emm42_SyncStart(Emm42_Handle *handle);
 
 /**
- * @brief DMA 发送完成回调，须在 HAL_UART_TxCpltCallback 里调用。
+ * @brief DMA 发送完成处理。当前驱动已在 HAL_UART_TxCpltCallback 里自动分发。
  *
- * 示例（stm32f1xx_it.c 或 main.c）：
- *   void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
- *       extern Emm42_Handle motor1;
- *       Emm42_TxCpltCallback(&motor1, huart);
- *   }
+ * 若工程其他文件也需要实现 HAL_UART_TxCpltCallback，请在该回调中调用本函数。
  */
 void Emm42_TxCpltCallback(Emm42_Handle *handle, UART_HandleTypeDef *huart);
 

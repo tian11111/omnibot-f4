@@ -33,6 +33,7 @@
 .\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 .\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 .\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+.\main.o: ../Core/Inc/dma.h
 .\main.o: ../Core/Inc/i2c.h
 .\main.o: ../Core/Inc/tim.h
 .\main.o: ../Core/Inc/usart.h

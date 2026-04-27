@@ -7,6 +7,27 @@
 /* main.h 已通过 motor_driver_emm42.h 间接引入，
    stm32f1xx.h / stm32f1xx_hal.h / dma.h 均无需在此单独包含 */
 
+#define EMM42_MAX_HANDLES 4U
+//这是一个全局数组，用于保存所有已注册的句柄
+static Emm42_Handle *emm42_handles[EMM42_MAX_HANDLES];
+
+static void Emm42_RegisterHandle(Emm42_Handle *handle)
+{
+    for (uint8_t i = 0U; i < EMM42_MAX_HANDLES; ++i)
+    {
+        if (emm42_handles[i] == handle)
+        {
+            return;
+        }
+
+        if (emm42_handles[i] == NULL)
+        {
+            emm42_handles[i] = handle;
+            return;
+        }
+    }
+}
+
 /* -----------------------------------------------------------------------
  * DMA 发送完成回调（DMA 启用后须在 HAL_UART_TxCpltCallback 里调用）
  * ----------------------------------------------------------------------- */
@@ -15,6 +36,22 @@ void Emm42_TxCpltCallback(Emm42_Handle *handle, UART_HandleTypeDef *huart)
     if (handle != NULL && handle->huart == huart)
     {
         handle->tx_busy = false;
+    }
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    for (uint8_t i = 0U; i < EMM42_MAX_HANDLES; ++i)
+    {
+        Emm42_TxCpltCallback(emm42_handles[i], huart);
+    }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    for (uint8_t i = 0U; i < EMM42_MAX_HANDLES; ++i)
+    {
+        Emm42_TxCpltCallback(emm42_handles[i], huart);
     }
 }
 
@@ -58,11 +95,13 @@ static Emm42_Status Emm42_SendSimpleCommand(Emm42_Handle *handle,
 
     const uint16_t total_len = (uint16_t)(3U + length);
 
-    /* 动态超时：每字节约 1ms（适用 9600bps 以上），加 5ms 裕量 */
-    const uint32_t timeout_ms = (uint32_t)total_len + 5U;
-    if (HAL_UART_Transmit(handle->huart, handle->tx_buf, total_len, timeout_ms) != HAL_OK)
+    handle->tx_busy = true;
+
+    HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(handle->huart, handle->tx_buf, total_len);
+    if (status != HAL_OK)
     {
-        return EMM42_ERR_HW;
+        handle->tx_busy = false;
+        return (status == HAL_BUSY) ? EMM42_ERR_BUSY : EMM42_ERR_HW;
     }
 
     return EMM42_OK;
@@ -90,6 +129,16 @@ Emm42_Status Emm42_Init(Emm42_Handle *handle,
     handle->id_addr       = id_addr;
     handle->checksum_mode = EMM42_CHECKSUM_FIXED_0x6B;
     handle->tx_busy       = false;
+
+    Emm42_RegisterHandle(handle);
+    Emm42_Init(&motor1, &huart1, 0x01);
+    Emm43_Init(&motor2, &huart2, 0x02);
+    Emm42_Init(&motor3, &huart4, 0x01);
+    Emm42_Init(&motor4, &huart5, 0x01);
+    Emm42_Enable(&motor1, true, false);
+    Emm42_Enable(&motor2, true, false);
+    Emm42_Enable(&motor3, true, false);
+    Emm42_Enable(&motor4, true, false);  
 
     return EMM42_OK;
 }
@@ -194,12 +243,20 @@ Emm42_Status Emm42_SyncStart(Emm42_Handle *handle)
         return EMM42_ERR_PARAM;
     }
 
-    /* static const：防止 DMA 启用后读已释放的栈内存 */
     static const uint8_t sync_frame[4U] = {0x00U, 0xFFU, 0x66U, 0x6BU};
 
-    if (HAL_UART_Transmit(handle->huart, (uint8_t *)sync_frame, 4U, 4U + 5U) != HAL_OK)
+    if (handle->tx_busy)
     {
-        return EMM42_ERR_HW;
+        return EMM42_ERR_BUSY;
+    }
+
+    handle->tx_busy = true;
+
+    HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(handle->huart, (uint8_t *)sync_frame, 4U);
+    if (status != HAL_OK)
+    {
+        handle->tx_busy = false;
+        return (status == HAL_BUSY) ? EMM42_ERR_BUSY : EMM42_ERR_HW;
     }
 
     return EMM42_OK;

@@ -1,7 +1,7 @@
 #include "bluetooth.h"
 #include <string.h>
 
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
 
 uint8_t BT_RxFlag = 0;
 //接收完成标志位
@@ -25,12 +25,12 @@ void Bluetooth_Init(void)
 
 void Bluetooth_StartReceiveIT(void)
 {
-    HAL_UART_Receive_IT(&huart1, &bt_rx_byte, 1);
+    HAL_UART_Receive_IT(&huart3, &bt_rx_byte, 1);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == USART1)
+    if (huart->Instance == USART3)
     {
         if (bt_rx_state == 0)
         {
@@ -65,6 +65,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             }
         }
 
-        HAL_UART_Receive_IT(&huart1, &bt_rx_byte, 1);
+        HAL_UART_Receive_IT(&huart3, &bt_rx_byte, 1);
     }
 }

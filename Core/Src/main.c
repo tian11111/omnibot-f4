@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -25,6 +26,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_control.h"
+#include "bluetooth.h"
 
 /* USER CODE END Includes */
 
@@ -89,6 +92,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
@@ -99,7 +103,12 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
+
   /* USER CODE BEGIN 2 */
+
+  Bluetooth_Init();
+  Bluetooth_StartReceiveIT();
+  Mecanum_Init();
 
   /* USER CODE END 2 */
 
@@ -110,6 +119,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    App_ControlTask();
   }
   /* USER CODE END 3 */
 }

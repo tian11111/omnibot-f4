@@ -22,15 +22,28 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 D:\project\fangzhou\New Folder\-\MDK-ARM\∑Ω÷€.uvprojx
-Project File Date:  04/25/2026
+Project File Date:  04/27/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\keilmdk\ARM\ARMCC\Bin'
 Build target '∑Ω÷€'
+compiling app_control.c...
+..\Core\Src\app_control.c(60): warning:  #223-D: function "Mecanum_SetSpeed" declared implicitly
+              Mecanum_SetSpeed(vx, vy, wz);
+..\Core\Src\app_control.c: 1 warning, 0 errors
 linking...
-Program Size: Code=7746 RO-data=450 RW-data=16 ZI-data=2368  
-FromELF: creating hex file...
-".\fangzhou.axf" - 0 Error(s), 0 Warning(s).
+.\fangzhou.axf: Error: L6200E: Symbol SystemInit multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol __asm___18_system_stm32f4xx_c_5d646a67____REV16 multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol __asm___18_system_stm32f4xx_c_5d646a67____REVSH multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol __asm___18_system_stm32f4xx_c_5d646a67____RRX multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol AHBPrescTable multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol APBPrescTable multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol SystemCoreClock multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+.\fangzhou.axf: Error: L6200E: Symbol SystemCoreClockUpdate multiply defined (by system_stm32f4xx_1.o and system_stm32f4xx.o).
+Not enough information to list image symbols.
+Not enough information to list load addresses in the image map.
+Finished: 2 information, 0 warning and 8 error messages.
+".\fangzhou.axf" - 8 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -53,7 +66,8 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:00
+Target not created.
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

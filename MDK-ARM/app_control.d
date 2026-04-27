@@ -35,7 +35,6 @@
 .\app_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 .\app_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 .\app_control.o: ../Core/Inc/bluetooth.h
-.\app_control.o: ../Core/Inc/motor.h
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdio.h
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\string.h
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdlib.h
