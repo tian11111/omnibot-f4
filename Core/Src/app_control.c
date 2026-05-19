@@ -1,32 +1,30 @@
 #include "app_control.h"
 #include "bluetooth.h"
 #include "motor_driver_emm42.h"
+#include "motor_driver_dc4ch.h"
 #include "usart.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
-#define JOYSTICK_DEADZONE      8       // 摇杆死区
-#define VX_SCALE               1      // 前后缩放到 -100~100
-#define VY_SCALE               10      // 左右平移缩放
-#define WZ_SCALE               8       // 转弯缩放，别太猛
+#define JOYSTICK_DEADZONE      8
+#define AXIS_SCALE             8
 #define MOTOR_MAX_RPM          300U
 #define MOTOR_ACCEL            10U
+#define MECANUM_PWM_MAX        100
 
-Emm42_Handle motor_fl;  // 左前
-Emm42_Handle motor_fr;  // 右前
-Emm42_Handle motor_rl;  // 左后
-Emm42_Handle motor_rr;  // 右后
+/* -------------------- Gripper stepper subsystem -------------------- */
+static Emm42_Handle motor_x;   /* X axis - UART1 */
+static Emm42_Handle motor_y;   /* Y axis - UART2 */
 
-static int16_t apply_deadzone(int16_t val, int16_t deadzone)
+static int16_t clamp_i16(int16_t v, int16_t lo, int16_t hi)
 {
-    if (val > -deadzone && val < deadzone)
-    {
-        return 0;
-    }
-    return val;
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
 }
 
 static int16_t limit_value(int16_t val, int16_t min, int16_t max)
@@ -39,23 +37,6 @@ static int16_t limit_value(int16_t val, int16_t min, int16_t max)
 static uint16_t abs_i16_to_u16(int16_t value)
 {
     return (uint16_t)((value < 0) ? -value : value);
-}
-
-static void normalize_wheel_rpm(int16_t *fl, int16_t *fr, int16_t *rl, int16_t *rr)
-{
-    uint16_t max_abs = abs_i16_to_u16(*fl);
-
-    if (abs_i16_to_u16(*fr) > max_abs) max_abs = abs_i16_to_u16(*fr);
-    if (abs_i16_to_u16(*rl) > max_abs) max_abs = abs_i16_to_u16(*rl);
-    if (abs_i16_to_u16(*rr) > max_abs) max_abs = abs_i16_to_u16(*rr);
-
-    if (max_abs > MOTOR_MAX_RPM)
-    {
-        *fl = (int16_t)((int32_t)(*fl) * MOTOR_MAX_RPM / max_abs);
-        *fr = (int16_t)((int32_t)(*fr) * MOTOR_MAX_RPM / max_abs);
-        *rl = (int16_t)((int32_t)(*rl) * MOTOR_MAX_RPM / max_abs);
-        *rr = (int16_t)((int32_t)(*rr) * MOTOR_MAX_RPM / max_abs);
-    }
 }
 
 static void Motor_SetSignedSpeed(Emm42_Handle *motor, int16_t speed)
@@ -78,78 +59,96 @@ static void Motor_SetSignedSpeed(Emm42_Handle *motor, int16_t speed)
     (void)Emm42_SetSpeed(motor, ccw, rpm, MOTOR_ACCEL, false);
 }
 
+void Gripper_Init(void)
+{
+    Emm42_Init(&motor_x, &huart1, 1U);
+    Emm42_Init(&motor_y, &huart2, 1U);
+
+    (void)Emm42_Enable(&motor_x, true, false);
+    HAL_Delay(10);
+    (void)Emm42_Enable(&motor_y, true, false);
+    HAL_Delay(10);
+}
+
+void Gripper_SetSpeed(int16_t x_speed, int16_t y_speed)
+{
+    Motor_SetSignedSpeed(&motor_x, x_speed);
+    HAL_Delay(2);
+    Motor_SetSignedSpeed(&motor_y, y_speed);
+}
+
+void Gripper_StopAll(void)
+{
+    (void)Emm42_StopNow(&motor_x, false);
+    HAL_Delay(2);
+    (void)Emm42_StopNow(&motor_y, false);
+}
+
+/* -------------------- Mecanum DC subsystem -------------------- */
 void Mecanum_Init(void)
 {
-    Emm42_Init(&motor_fl, &huart1, 1U);
-    Emm42_Init(&motor_fr, &huart2, 1U);
-    Emm42_Init(&motor_rl, &huart4, 1U);
-    Emm42_Init(&motor_rr, &huart5, 1U);
-
-    (void)Emm42_Enable(&motor_fl, true, false);
-    HAL_Delay(10);
-    (void)Emm42_Enable(&motor_fr, true, false);
-    HAL_Delay(10);
-    (void)Emm42_Enable(&motor_rl, true, false);
-    HAL_Delay(10);
-    (void)Emm42_Enable(&motor_rr, true, false);
-    HAL_Delay(10);
+    DC4_Motor_Init();
+    DC4_Motor_Start();
+    DC4_Motor_AllStop();
 }
 
-void Mecanum_SetVelocity(int16_t vx, int16_t vy, int16_t wz)
+void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)
 {
-    int16_t fl;
-    int16_t fr;
-    int16_t rl;
-    int16_t rr;
+    int16_t x = clamp_i16(vx, -MECANUM_PWM_MAX, MECANUM_PWM_MAX);
+    int16_t y = clamp_i16(vy, -MECANUM_PWM_MAX, MECANUM_PWM_MAX);
+    int16_t w = clamp_i16(wz, -MECANUM_PWM_MAX, MECANUM_PWM_MAX);
 
-    fl = vx + vy + wz;
-    fr = vx - vy - wz;
-    rl = vx - vy + wz;
-    rr = vx + vy - wz;
+    int32_t fl = (int32_t)x + (int32_t)y + (int32_t)w;
+    int32_t fr = (int32_t)x - (int32_t)y - (int32_t)w;
+    int32_t bl = (int32_t)x - (int32_t)y + (int32_t)w;
+    int32_t br = (int32_t)x + (int32_t)y - (int32_t)w;
 
-    normalize_wheel_rpm(&fl, &fr, &rl, &rr);
+    int32_t maxv = abs(fl);
+    if (abs(fr) > maxv) maxv = abs(fr);
+    if (abs(bl) > maxv) maxv = abs(bl);
+    if (abs(br) > maxv) maxv = abs(br);
 
-    Motor_SetSignedSpeed(&motor_fl, fl);
-    HAL_Delay(2);
-    Motor_SetSignedSpeed(&motor_fr, fr);
-    HAL_Delay(2);
-    Motor_SetSignedSpeed(&motor_rl, rl);
-    HAL_Delay(2);
-    Motor_SetSignedSpeed(&motor_rr, rr);
+    if (maxv > MECANUM_PWM_MAX)
+    {
+        fl = (int32_t)((int64_t)fl * MECANUM_PWM_MAX / maxv);
+        fr = (int32_t)((int64_t)fr * MECANUM_PWM_MAX / maxv);
+        bl = (int32_t)((int64_t)bl * MECANUM_PWM_MAX / maxv);
+        br = (int32_t)((int64_t)br * MECANUM_PWM_MAX / maxv);
+    }
+
+    DC4_Motor_SetSignedSpeed(0, (int16_t)fl);
+    DC4_Motor_SetSignedSpeed(1, (int16_t)fr);
+    DC4_Motor_SetSignedSpeed(2, (int16_t)bl);
+    DC4_Motor_SetSignedSpeed(3, (int16_t)br);
 }
 
+void Mecanum_StopAll(void)
+{
+    DC4_Motor_AllStop();
+}
+
+/* -------------------- Protocol -------------------- */
 static void App_ParseJoystickPacket(const char *packet)
 {
     char type[20] = {0};
     int lx = 0, ly = 0, rx = 0, ry = 0;
 
-    // 解析格式：joystick,a,b,c,d
     if (sscanf(packet, "%19[^,],%d,%d,%d,%d", type, &lx, &ly, &rx, &ry) == 5)
     {
         if (strcmp(type, "joystick") == 0)
         {
-            int16_t vx, vy, wz;
-
-            // 死区处理
-            lx = apply_deadzone((int16_t)lx, JOYSTICK_DEADZONE);
-            ly = apply_deadzone((int16_t)ly, JOYSTICK_DEADZONE);
-            rx = apply_deadzone((int16_t)rx, JOYSTICK_DEADZONE);
-            ry = apply_deadzone((int16_t)ry, JOYSTICK_DEADZONE);
-
-            // 映射关系：
-            // 左摇杆上下 -> 前后 vx
-            // 左摇杆左右 -> 转弯 wz
-            // 右摇杆左右 -> 左右平移 vy
-            vx = (int16_t)(ly * VX_SCALE);
-            wz = (int16_t)(lx * WZ_SCALE);
-            vy = (int16_t)(rx * VY_SCALE);
-
-            // 限幅
-            vx = limit_value(vx, -1000, 1000);
-            vy = limit_value(vy, -1000, 1000);
-            wz = limit_value(wz, -1000, 1000);
-
-            Mecanum_SetVelocity(vx, vy, wz);
+#ifdef USE_MECANUM
+            int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
+            int16_t vy = (int16_t)clamp_i16((int16_t)(lx), -100, 100);
+            int16_t wz = (int16_t)clamp_i16((int16_t)(rx), -100, 100);
+            Mecanum_SetMotion(vx, vy, wz);
+#endif
+        }
+        else if (strcmp(type, "gripper") == 0)
+        {
+            int16_t gx = (int16_t)clamp_i16((int16_t)lx, -300, 300);
+            int16_t gy = (int16_t)clamp_i16((int16_t)ly, -300, 300);
+            Gripper_SetSpeed(gx, gy);
         }
     }
 }
@@ -162,3 +161,4 @@ void App_ControlTask(void)
         BT_RxFlag = 0;
     }
 }
+

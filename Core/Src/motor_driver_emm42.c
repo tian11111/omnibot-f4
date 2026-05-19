@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file motor_driver_emm42.c
  * @brief Emm42_V5.0 闭环步进驱动串口控制最小骨架实现。
  */
@@ -131,14 +131,6 @@ Emm42_Status Emm42_Init(Emm42_Handle *handle,
     handle->tx_busy       = false;
 
     Emm42_RegisterHandle(handle);
-    Emm42_Init(&motor1, &huart1, 0x01);
-    Emm43_Init(&motor2, &huart2, 0x02);
-    Emm42_Init(&motor3, &huart4, 0x01);
-    Emm42_Init(&motor4, &huart5, 0x01);
-    Emm42_Enable(&motor1, true, false);
-    Emm42_Enable(&motor2, true, false);
-    Emm42_Enable(&motor3, true, false);
-    Emm42_Enable(&motor4, true, false);  
 
     return EMM42_OK;
 }
