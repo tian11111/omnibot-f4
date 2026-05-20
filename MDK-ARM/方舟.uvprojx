@@ -396,6 +396,11 @@
               <FilePath>..\Core\Src\motor_driver_emm42.c</FilePath>
             </File>
             <File>
+              <FileName>motor_driver_dc4ch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\motor_driver_dc4ch.c</FilePath>
+            </File>
+            <File>
               <FileName>app_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\app_control.c</FilePath>
@@ -404,11 +409,6 @@
               <FileName>bluetooth.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\bluetooth.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\system_stm32f4xx.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>

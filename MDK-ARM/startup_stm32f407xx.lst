@@ -851,9 +851,8 @@ ARM Macro Assembler    Page 14
 
  -IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -IC:\keilmdk\ARM\PACK\Keil
 \STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include --predefine="__
-EVAL SETA 1" --predefine="__UVISION_VERSION SETA 524" --predefine="_RTE_ SETA 1
-" --predefine="STM32F407xx SETA 1" --list=startup_stm32f407xx.lst startup_stm32
-f407xx.s
+UVISION_VERSION SETA 524" --predefine="_RTE_ SETA 1" --predefine="STM32F407xx S
+ETA 1" --list=startup_stm32f407xx.lst startup_stm32f407xx.s
 
 
 
@@ -1957,4 +1956,4 @@ Symbol: __use_two_region_memory
       None
 Comment: __use_two_region_memory unused
 3 symbols
-449 symbols in table
+448 symbols in table

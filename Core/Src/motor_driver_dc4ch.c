@@ -49,8 +49,6 @@ static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
       .invert = 0U },
 };
 
-/* ---- TIM8 handle (not in CubeMX tim.c, defined here) ---- */
-TIM_HandleTypeDef htim8;
 
 static void MX_TIM8_PWM_Init(void)
 {

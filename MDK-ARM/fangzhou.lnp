@@ -1,9 +1,9 @@
 --cpu=Cortex-M4.fp
 ".\startup_stm32f407xx.o"
 ".\motor_driver_emm42.o"
+".\motor_driver_dc4ch.o"
 ".\app_control.o"
 ".\bluetooth.o"
-".\system_stm32f4xx.o"
 ".\main.o"
 ".\gpio.o"
 ".\dma.o"
