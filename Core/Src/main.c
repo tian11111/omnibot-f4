@@ -96,8 +96,12 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM13_Init();
   MX_TIM8_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  StepperIF_Init();
+  DC4_Motor_Init();
+  DC4_Motor_Start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
