@@ -2,6 +2,7 @@
 #include "bluetooth.h"
 #include "motor_driver_emm42.h"
 #include "motor_driver_dc4ch.h"
+#include "motor_closedloop.h"
 #include "usart.h"
 
 #include <stdio.h>
@@ -17,8 +18,8 @@
 #define MECANUM_PWM_MAX        100
 
 /* -------------------- Gripper stepper subsystem -------------------- */
-static Emm42_Handle motor_x;   /* X axis - UART1 */
-static Emm42_Handle motor_y;   /* Y axis - UART2 */
+static Emm42_Handle motor_x;   /* X axis - UART6 (M1) */
+static Emm42_Handle motor_y;   /* Y axis - UART2 (M2) */
 
 static int16_t clamp_i16(int16_t v, int16_t lo, int16_t hi)
 {
@@ -61,8 +62,8 @@ static void Motor_SetSignedSpeed(Emm42_Handle *motor, int16_t speed)
 
 void Gripper_Init(void)
 {
-    Emm42_Init(&motor_x, &huart1, 1U);
-    Emm42_Init(&motor_y, &huart2, 1U);
+    Emm42_Init(&motor_x, &huart6, 1U);  /* M1: USART6 */
+    Emm42_Init(&motor_y, &huart2, 1U);  /* M2: USART2 */
 
     (void)Emm42_Enable(&motor_x, true, false);
     HAL_Delay(10);
@@ -149,6 +150,25 @@ static void App_ParseJoystickPacket(const char *packet)
             int16_t gx = (int16_t)clamp_i16((int16_t)lx, -300, 300);
             int16_t gy = (int16_t)clamp_i16((int16_t)ly, -300, 300);
             Gripper_SetSpeed(gx, gy);
+        }
+        else if (strcmp(type, "pid") == 0)
+        {
+            uint8_t motor_idx = (uint8_t)lx;
+            float kp = (float)ly / 100.0f;
+            float ki = (float)rx / 100.0f;
+            float kd = (float)ry / 100.0f;
+
+            if (motor_idx < 4)
+            {
+                MotorClosedLoop_SetPIDParams(motor_idx, kp, ki, kd);
+            }
+            else if (motor_idx == 4)
+            {
+                for (uint8_t i = 0; i < 4; i++)
+                {
+                    MotorClosedLoop_SetPIDParams(i, kp, ki, kd);
+                }
+            }
         }
     }
 }

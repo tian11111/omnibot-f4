@@ -19,6 +19,7 @@
 #include "app_control.h"
 #include "bluetooth.h"
 #include "stepper_interface.h"
+#include "motor_closedloop.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,16 +93,24 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
-  MX_TIM3_Init();
   MX_TIM6_Init();
-  MX_TIM13_Init();
   MX_TIM8_Init();
   MX_USART6_UART_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
   StepperIF_Init();
   DC4_Motor_Init();
   DC4_Motor_Start();
+  
+  /* 初始化闭环控制 */
+  MotorClosedLoop_Init();
+  MotorClosedLoop_Start();
+  
+  /* 初始化蓝牙 */
+  Bluetooth_Init();
+  Bluetooth_StartReceiveIT();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,6 +120,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    /* 蓝牙控制任务 */
+    App_ControlTask();
+    /* 更新闭环控制（10ms周期） */
+    MotorClosedLoop_Update();
+    HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
