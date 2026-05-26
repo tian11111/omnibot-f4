@@ -13,6 +13,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "motor_driver_dc4ch.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

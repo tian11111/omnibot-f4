@@ -38,6 +38,7 @@
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdbool.h
 .\app_control.o: ../Core/Inc/bluetooth.h
 .\app_control.o: ../Core/Inc/motor_driver_dc4ch.h
+.\app_control.o: ../Core/Inc/motor_closedloop.h
 .\app_control.o: ../Core/Inc/usart.h
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdio.h
 .\app_control.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\string.h

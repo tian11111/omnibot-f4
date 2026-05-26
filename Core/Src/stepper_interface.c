@@ -20,25 +20,9 @@
 #include <string.h>
 
 /* ------------------------------------------------------------------ */
-/* USART6 handle (M1 serial)                                          */
+/* USART6 handle (M1 serial) - defined in usart.c                      */
 /* ------------------------------------------------------------------ */
-UART_HandleTypeDef huart6;
-
-static void MX_USART6_UART_Init(void)
-{
-    huart6.Instance          = USART6;
-    huart6.Init.BaudRate     = 115200;
-    huart6.Init.WordLength   = UART_WORDLENGTH_8B;
-    huart6.Init.StopBits     = UART_STOPBITS_1;
-    huart6.Init.Parity       = UART_PARITY_NONE;
-    huart6.Init.Mode         = UART_MODE_TX_RX;
-    huart6.Init.HwFlowCtl   = UART_HWCONTROL_NONE;
-    huart6.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart6) != HAL_OK)
-    {
-        Error_Handler();
-    }
-}
+extern UART_HandleTypeDef huart6;
 
 /* ------------------------------------------------------------------ */
 /* Static helpers                                                      */
@@ -94,10 +78,7 @@ void StepperIF_Init(void)
     HAL_GPIO_Init(GPIOG, &gi);
 
     /* ---- Now safe to init USART6 peripheral ---- */
-    /* NOTE: HAL_UART_Init calls HAL_UART_MspInit in usart.c.
-     *       Since that function has no USART6 branch, the GPIO
-     *       and NVIC for USART6 are configured manually here. */
-    MX_USART6_UART_Init();
+    /* NOTE: USART6 is already initialized by MX_USART6_UART_Init() in main.c */
 
     /* Enable USART6 NVIC interrupt */
     HAL_NVIC_SetPriority(USART6_IRQn, 0, 0);

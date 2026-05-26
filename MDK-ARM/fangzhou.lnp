@@ -12,6 +12,8 @@
 ".\usart.o"
 ".\stm32f4xx_it.o"
 ".\stm32f4xx_hal_msp.o"
+".\motor_closedloop.o"
+".\stepper_interface.o"
 ".\stm32f4xx_hal_i2c.o"
 ".\stm32f4xx_hal_i2c_ex.o"
 ".\stm32f4xx_hal_rcc.o"

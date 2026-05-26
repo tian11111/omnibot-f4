@@ -1,5 +1,7 @@
 #include "bluetooth.h"
+#include "motor_closedloop.h"
 #include <string.h>
+#include <stdio.h>
 
 extern UART_HandleTypeDef huart3;
 
@@ -67,4 +69,24 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         HAL_UART_Receive_IT(&huart3, &bt_rx_byte, 1);
     }
+}
+
+void Bluetooth_SendString(const char *str)
+{
+    HAL_UART_Transmit(&huart3, (uint8_t *)str, strlen(str), 100);
+}
+
+void Bluetooth_SendMotorStatus(void)
+{
+    char tx_buf[BT_TX_PACKET_MAX_LEN];
+    int32_t speed0 = MotorClosedLoop_GetCurrentSpeed(0);
+    int32_t speed1 = MotorClosedLoop_GetCurrentSpeed(1);
+    int32_t speed2 = MotorClosedLoop_GetCurrentSpeed(2);
+    int32_t speed3 = MotorClosedLoop_GetCurrentSpeed(3);
+
+    snprintf(tx_buf, BT_TX_PACKET_MAX_LEN,
+             "[s,%ld,%ld,%ld,%ld]\r\n",
+             speed0, speed1, speed2, speed3);
+
+    Bluetooth_SendString(tx_buf);
 }

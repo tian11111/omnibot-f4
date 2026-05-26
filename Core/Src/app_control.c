@@ -117,15 +117,19 @@ void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)
         br = (int32_t)((int64_t)br * MECANUM_PWM_MAX / maxv);
     }
 
-    DC4_Motor_SetSignedSpeed(0, (int16_t)fl);
-    DC4_Motor_SetSignedSpeed(1, (int16_t)fr);
-    DC4_Motor_SetSignedSpeed(2, (int16_t)bl);
-    DC4_Motor_SetSignedSpeed(3, (int16_t)br);
+    /* 设置PID目标速度，由MotorClosedLoop_Update()闭环控制 */
+    MotorClosedLoop_SetTargetSpeed(0, (int32_t)fl);
+    MotorClosedLoop_SetTargetSpeed(1, (int32_t)fr);
+    MotorClosedLoop_SetTargetSpeed(2, (int32_t)bl);
+    MotorClosedLoop_SetTargetSpeed(3, (int32_t)br);
 }
 
 void Mecanum_StopAll(void)
 {
-    DC4_Motor_AllStop();
+    MotorClosedLoop_SetTargetSpeed(0, 0);
+    MotorClosedLoop_SetTargetSpeed(1, 0);
+    MotorClosedLoop_SetTargetSpeed(2, 0);
+    MotorClosedLoop_SetTargetSpeed(3, 0);
 }
 
 /* -------------------- Protocol -------------------- */
@@ -177,7 +181,19 @@ void App_ControlTask(void)
 {
     if (BT_RxFlag == 1)
     {
-        App_ParseJoystickPacket(BT_RxPacket);
+        /* 回显接收到的指令 */
+        Bluetooth_SendString("[rx:");
+        Bluetooth_SendString(BT_RxPacket);
+        Bluetooth_SendString("]\r\n");
+
+        if (strcmp(BT_RxPacket, "query") == 0)
+        {
+            Bluetooth_SendMotorStatus();
+        }
+        else
+        {
+            App_ParseJoystickPacket(BT_RxPacket);
+        }
         BT_RxFlag = 0;
     }
 }

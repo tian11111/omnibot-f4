@@ -34,4 +34,6 @@
 .\bluetooth.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 .\bluetooth.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 .\bluetooth.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+.\bluetooth.o: ../Core/Inc/motor_closedloop.h
 .\bluetooth.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\string.h
+.\bluetooth.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdio.h
