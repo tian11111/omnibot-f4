@@ -3,6 +3,10 @@
 
 #include "main.h"
 #include "motor_driver_emm42.h"
+
+/* 定义USE_MECANUM启用麦轮控制 */
+#define USE_MECANUM
+
 #ifdef USE_MECANUM
 #include "motor_driver_dc4ch.h"
 #endif
@@ -20,6 +24,11 @@ void Mecanum_StopAll(void);
 #endif
 
 void App_ControlTask(void);
+void App_AutoPlotTask(void);
+
+/* 自动绘图控制 */
+extern uint8_t g_auto_plot_enable;
+extern uint16_t g_auto_plot_interval_ms;
 
 #endif
 

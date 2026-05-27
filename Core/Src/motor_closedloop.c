@@ -1,13 +1,13 @@
 /**
- * @file  motor_closedloop.c
- * @brief 四轮闭环控制模块，使用编码器反馈实现速度闭环
- *
- * 编码器定时器配置：
- *   前轮左/右: TIM2 (PA0/PA1)
- *   前轮右/左: TIM3 (PA7/PA6)
- *   后轮左/右: TIM4 (PB7/PB6)
- *   后轮右/左: TIM8 (PC7/PC6)
- */
+  * @file  motor_closedloop.c
+  * @brief 四轮闭环控制模块，使用编码器反馈实现速度闭环
+  *
+  * 编码器定时器配置：
+  *   前轮左/右: TIM2 (PA0/PA1)
+  *   前轮右/左: TIM3 (PA7/PA6)
+  *   后轮左/右: TIM4 (PB7/PB6)
+  *   后轮右/左: TIM8 (PC7/PC6)
+  */
 
 #include "motor_closedloop.h"
 #include "motor_driver_dc4ch.h"
@@ -25,12 +25,24 @@ static TIM_HandleTypeDef* g_encoder_timers[DC4_MOTOR_COUNT] = {
     ENCODER_TIM_RR
 };
 
+/* 编码器方向反向表：1表示反向，0表示正向 */
+static const uint8_t g_encoder_invert[DC4_MOTOR_COUNT] = {
+    0,  /* 前左 */
+    0,  /* 前右 */
+    0,  /* 后左 */
+    0   /* 后右 */
+};
+
+/* 速度缩放因子：将目标速度(-100~100)转换为编码器计数单位 */
+/* 需要根据实际电机和编码器调整此值 */
+#define SPEED_SCALE_FACTOR  1.5f
+
 /* PID控制器初始化 */
 static void PID_Init(PID_Controller *pid)
 {
-    pid->kp = 2.0f;
-    pid->ki = 0.5f;
-    pid->kd = 0.1f;
+    pid->kp = 0.5f;
+    pid->ki = 0.3f;
+    pid->kd = 0.0f;
     pid->integral = 0.0f;
     pid->prev_error = 0.0f;
     pid->output_min = -100.0f;
@@ -146,11 +158,25 @@ void MotorClosedLoop_Update(void)
         /* 立即清零定时器，为下一个周期做准备 */
         __HAL_TIM_SET_COUNTER(g_motors[i].encoder_tim, 0);
         
-        /* 直接使用raw_speed作为当前速度 */
+        /* 应用编码器方向反向 */
+        if (g_encoder_invert[i]) {
+            raw_speed = -raw_speed;
+        }
+        
+        /* 使用raw_speed作为当前速度 */
         g_motors[i].current_speed = raw_speed;
+        if (g_motors[i].target_speed == 0) {
+					g_motors[i].pid.integral = 0.0f;
+					g_motors[i].pid.prev_error = 0.0f;
+					g_motors[i].motor_output = 0;
+					DC4_Motor_SetSignedSpeed(i, 0);
+					continue;
+				}
+        /* 将目标速度缩放到编码器计数单位 */
+        float scaled_target = (float)g_motors[i].target_speed * SPEED_SCALE_FACTOR;
         
         /* 计算速度误差 */
-        float error = (float)(g_motors[i].target_speed - g_motors[i].current_speed);
+        float error = scaled_target - (float)g_motors[i].current_speed;
         
         /* PID计算 */
         float pid_output = PID_Compute(&g_motors[i].pid, error);
@@ -162,3 +188,4 @@ void MotorClosedLoop_Update(void)
         DC4_Motor_SetSignedSpeed(i, g_motors[i].motor_output);
     }
 }
+

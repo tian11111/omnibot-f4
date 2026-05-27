@@ -90,3 +90,19 @@ void Bluetooth_SendMotorStatus(void)
 
     Bluetooth_SendString(tx_buf);
 }
+
+void Bluetooth_SendPlotData(int32_t d1, int32_t d2, int32_t d3, int32_t d4)
+{
+    char tx_buf[BT_TX_PACKET_MAX_LEN];
+
+    snprintf(tx_buf, BT_TX_PACKET_MAX_LEN,
+             "[p,%ld,%ld,%ld,%ld]\r\n",
+             d1, d2, d3, d4);
+
+    Bluetooth_SendString(tx_buf);
+}
+
+void Bluetooth_SendPlotClear(void)
+{
+    Bluetooth_SendString("[p-c]\r\n");
+}

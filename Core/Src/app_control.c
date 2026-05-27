@@ -17,6 +17,11 @@
 #define MOTOR_ACCEL            10U
 #define MECANUM_PWM_MAX        100
 
+/* 自动绘图控制 */
+uint8_t g_auto_plot_enable = 0;
+uint16_t g_auto_plot_interval_ms = 100;  /* 默认100ms发送一次 */
+static uint32_t g_last_plot_time = 0;
+
 /* -------------------- Gripper stepper subsystem -------------------- */
 static Emm42_Handle motor_x;   /* X axis - UART6 (M1) */
 static Emm42_Handle motor_y;   /* Y axis - UART2 (M2) */
@@ -91,6 +96,8 @@ void Mecanum_Init(void)
     DC4_Motor_Init();
     DC4_Motor_Start();
     DC4_Motor_AllStop();
+    MotorClosedLoop_Init();
+    MotorClosedLoop_Start();
 }
 
 void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)
@@ -190,11 +197,55 @@ void App_ControlTask(void)
         {
             Bluetooth_SendMotorStatus();
         }
+        else if (strcmp(BT_RxPacket, "plot") == 0 || strcmp(BT_RxPacket, "p") == 0)
+        {
+            /* 发送四个电机的当前速度 */
+            int32_t s0 = MotorClosedLoop_GetCurrentSpeed(0);
+            int32_t s1 = MotorClosedLoop_GetCurrentSpeed(1);
+            int32_t s2 = MotorClosedLoop_GetCurrentSpeed(2);
+            int32_t s3 = MotorClosedLoop_GetCurrentSpeed(3);
+            Bluetooth_SendPlotData(s0, s1, s2, s3);
+        }
+        else if (strcmp(BT_RxPacket, "plot-clear") == 0 || strcmp(BT_RxPacket, "p-c") == 0)
+        {
+            Bluetooth_SendPlotClear();
+        }
+        else if (strcmp(BT_RxPacket, "auto") == 0)
+        {
+            /* 开始自动发送绘图数据 */
+            g_auto_plot_enable = 1;
+            g_last_plot_time = HAL_GetTick();
+            Bluetooth_SendString("[auto:start]\r\n");
+        }
+        else if (strcmp(BT_RxPacket, "stop") == 0)
+        {
+            /* 停止自动发送绘图数据 */
+            g_auto_plot_enable = 0;
+            Bluetooth_SendString("[auto:stop]\r\n");
+        }
         else
         {
             App_ParseJoystickPacket(BT_RxPacket);
         }
         BT_RxFlag = 0;
+    }
+}
+
+/* 自动发送绘图数据（需要在主循环中调用） */
+void App_AutoPlotTask(void)
+{
+    if (g_auto_plot_enable)
+    {
+        uint32_t now = HAL_GetTick();
+        if (now - g_last_plot_time >= g_auto_plot_interval_ms)
+        {
+            g_last_plot_time = now;
+            int32_t s0 = MotorClosedLoop_GetCurrentSpeed(0);
+            int32_t s1 = MotorClosedLoop_GetCurrentSpeed(1);
+            int32_t s2 = MotorClosedLoop_GetCurrentSpeed(2);
+            int32_t s3 = MotorClosedLoop_GetCurrentSpeed(3);
+            Bluetooth_SendPlotData(s0, s1, s2, s3);
+        }
     }
 }
 

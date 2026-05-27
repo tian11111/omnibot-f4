@@ -73,8 +73,8 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x69D4F864)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x69D4F864)
 I (../Core/Inc/tim.h)(0x6A130342)
 I (C:\keilmdk\ARM\ARMCC\include\stdlib.h)(0x588B8344)
-F (..\Core\Src\app_control.c)(0x6A1567B9)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\app_control.o --omf_browse .\app_control.crf --depend .\app_control.d)
-I (../Core/Inc/app_control.h)(0x6A0DB25B)
+F (..\Core\Src\app_control.c)(0x6A15ABD3)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\app_control.o --omf_browse .\app_control.crf --depend .\app_control.d)
+I (../Core/Inc/app_control.h)(0x6A15ABD9)
 I (../Core/Inc/main.h)(0x6A0DB4A6)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x69D4F864)
 I (../Core/Inc/stm32f4xx_hal_conf.h)(0x6A0DB25B)
@@ -110,16 +110,16 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x69D4F864)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x69D4F864)
 I (../Core/Inc/motor_driver_emm42.h)(0x6A0DB25B)
 I (C:\keilmdk\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../Core/Inc/bluetooth.h)(0x6A155983)
 I (../Core/Inc/motor_driver_dc4ch.h)(0x6A0DB25B)
+I (../Core/Inc/bluetooth.h)(0x6A15AB93)
 I (../Core/Inc/motor_closedloop.h)(0x6A12E458)
 I (../Core/Inc/usart.h)(0x6A0DC009)
 I (C:\keilmdk\ARM\ARMCC\include\stdio.h)(0x588B8344)
 I (C:\keilmdk\ARM\ARMCC\include\string.h)(0x588B8344)
 I (C:\keilmdk\ARM\ARMCC\include\stdlib.h)(0x588B8344)
 I (C:\keilmdk\ARM\ARMCC\include\math.h)(0x588B8344)
-F (..\Core\Src\bluetooth.c)(0x6A15598F)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\bluetooth.o --omf_browse .\bluetooth.crf --depend .\bluetooth.d)
-I (../Core/Inc/bluetooth.h)(0x6A155983)
+F (..\Core\Src\bluetooth.c)(0x6A15AB9E)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\bluetooth.o --omf_browse .\bluetooth.crf --depend .\bluetooth.d)
+I (../Core/Inc/bluetooth.h)(0x6A15AB93)
 I (../Core/Inc/main.h)(0x6A0DB4A6)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x69D4F864)
 I (../Core/Inc/stm32f4xx_hal_conf.h)(0x6A0DB25B)
@@ -156,7 +156,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x69D4F864)
 I (../Core/Inc/motor_closedloop.h)(0x6A12E458)
 I (C:\keilmdk\ARM\ARMCC\include\string.h)(0x588B8344)
 I (C:\keilmdk\ARM\ARMCC\include\stdio.h)(0x588B8344)
-F (../Core/Src/main.c)(0x6A1451A5)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\main.o --omf_browse .\main.crf --depend .\main.d)
+F (../Core/Src/main.c)(0x6A15ABE2)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\main.o --omf_browse .\main.crf --depend .\main.d)
 I (../Core/Inc/main.h)(0x6A0DB4A6)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x69D4F864)
 I (../Core/Inc/stm32f4xx_hal_conf.h)(0x6A0DB25B)
@@ -196,10 +196,11 @@ I (../Core/Inc/tim.h)(0x6A130342)
 I (../Core/Inc/usart.h)(0x6A0DC009)
 I (../Core/Inc/gpio.h)(0x6A0DB25B)
 I (../Core/Inc/motor_driver_dc4ch.h)(0x6A0DB25B)
-I (../Core/Inc/app_control.h)(0x6A0DB25B)
+I (C:\keilmdk\ARM\ARMCC\include\stdio.h)(0x588B8344)
+I (../Core/Inc/app_control.h)(0x6A15ABD9)
 I (../Core/Inc/motor_driver_emm42.h)(0x6A0DB25B)
 I (C:\keilmdk\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../Core/Inc/bluetooth.h)(0x6A155983)
+I (../Core/Inc/bluetooth.h)(0x6A15AB93)
 I (../Core/Inc/stepper_interface.h)(0x6A0DB25B)
 I (../Core/Inc/motor_closedloop.h)(0x6A12E458)
 F (../Core/Src/gpio.c)(0x6A13033E)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\gpio.o --omf_browse .\gpio.crf --depend .\gpio.d)
@@ -446,7 +447,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x69D4F864)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x69D4F864)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x69D4F864)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x69D4F864)
-F (..\Core\Src\motor_closedloop.c)(0x6A12FE57)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\motor_closedloop.o --omf_browse .\motor_closedloop.crf --depend .\motor_closedloop.d)
+F (..\Core\Src\motor_closedloop.c)(0x6A15AD01)(--c99 -c --cpu Cortex-M4.fp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_____-IC:\keilmdk\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\keilmdk\ARM\PACK\Keil\STM32F4xx_DFP\2.17.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o .\motor_closedloop.o --omf_browse .\motor_closedloop.crf --depend .\motor_closedloop.d)
 I (../Core/Inc/motor_closedloop.h)(0x6A12E458)
 I (../Core/Inc/main.h)(0x6A0DB4A6)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x69D4F864)

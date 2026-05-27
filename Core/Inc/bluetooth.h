@@ -13,5 +13,7 @@ void Bluetooth_Init(void);
 void Bluetooth_StartReceiveIT(void);
 void Bluetooth_SendString(const char *str);
 void Bluetooth_SendMotorStatus(void);
+void Bluetooth_SendPlotData(int32_t d1, int32_t d2, int32_t d3, int32_t d4);
+void Bluetooth_SendPlotClear(void);
 
 #endif

@@ -14,6 +14,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "motor_driver_dc4ch.h"
+#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -102,12 +103,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   StepperIF_Init();
-  DC4_Motor_Init();
-  DC4_Motor_Start();
   
-  /* 初始化闭环控制 */
-  MotorClosedLoop_Init();
-  MotorClosedLoop_Start();
+  /* 初始化麦轮控制（包含电机驱动和闭环控制） */
+  Mecanum_Init();
   
   /* 初始化蓝牙 */
   Bluetooth_Init();
@@ -123,6 +121,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
     /* 蓝牙控制任务 */
     App_ControlTask();
+    /* 自动绘图任务 */
+    App_AutoPlotTask();
     /* 更新闭环控制（10ms周期） */
     MotorClosedLoop_Update();
     HAL_Delay(10);

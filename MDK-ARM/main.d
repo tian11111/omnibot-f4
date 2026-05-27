@@ -39,6 +39,7 @@
 .\main.o: ../Core/Inc/usart.h
 .\main.o: ../Core/Inc/gpio.h
 .\main.o: ../Core/Inc/motor_driver_dc4ch.h
+.\main.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdio.h
 .\main.o: ../Core/Inc/app_control.h
 .\main.o: ../Core/Inc/motor_driver_emm42.h
 .\main.o: C:\keilmdk\ARM\ARMCC\Bin\..\include\stdbool.h
