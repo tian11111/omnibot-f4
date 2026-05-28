@@ -13,8 +13,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "motor_driver_dc4ch.h"
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -22,6 +20,8 @@
 #include "bluetooth.h"
 #include "stepper_interface.h"
 #include "motor_closedloop.h"
+#include "oled.h"
+#include "soft_i2c.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,6 +102,9 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
+  Soft_I2C_Init();
+  OLED_Init();
+  OLED_Clear();
   StepperIF_Init();
   
   /* 初始化麦轮控制（包含电机驱动和闭环控制） */
@@ -110,6 +113,11 @@ int main(void)
   /* 初始化蓝牙 */
   Bluetooth_Init();
   Bluetooth_StartReceiveIT();
+  
+  OLED_Clear();
+  OLED_ShowChinese60x60(0, 0, 0);  // 显示"黄" 60x60
+  OLED_ShowChinese60x60(60, 0, 1); // 显示"色" 60x60
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
