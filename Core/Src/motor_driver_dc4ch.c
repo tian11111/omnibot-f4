@@ -139,8 +139,9 @@ void DC4_Motor_Stop(void)
 {
     HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_3);
     HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_4);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+    /* TIM1: disable outputs and stop timer */
+    TIM1->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC3E);
+    TIM1->CR1 &= ~TIM_CR1_CEN;
 }
 
 void DC4_Motor_SetSignedSpeed(uint8_t idx, int16_t signed_speed)
