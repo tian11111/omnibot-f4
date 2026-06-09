@@ -95,6 +95,10 @@ void DC4_Motor_Init(void)
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOF_CLK_ENABLE();
 
+    /* Disable TIM1_CH1 on PE9 - we need PE9 as GPIO for direction control */
+    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0);
+
     /* Direction pins */
     cfg_out(GPIOB, GPIO_PIN_0  | GPIO_PIN_1);   /* Front-Left  IN1/IN2 */
     cfg_out(GPIOF, GPIO_PIN_13 | GPIO_PIN_14);  /* Front-Right IN1/IN2 */
