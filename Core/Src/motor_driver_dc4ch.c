@@ -1,17 +1,17 @@
 /**
  * @file  motor_driver_dc4ch.c
- * @brief 4-channel TB6612 motor driver via TIM1 PWM + dual-pin direction.
+ * @brief 4-channel TB6612 motor driver via TIM1/TIM5 PWM + dual-pin direction.
  *
- * TIM1 PWM pins (AF1):
- *   CH1 -> PE9  (Front-Left  PWMA)
- *   CH2 -> PE11 (Front-Right PWMB)
- *   CH3 -> PE13 (Rear-Left   PWMA)
- *   CH4 -> PE14 (Rear-Right  PWMB)
+ * PWM pins:
+ *   PA2 (TIM5_CH3) -> Front-Left  PWMA
+ *   PA3 (TIM5_CH4) -> Front-Right PWMB
+ *   PE11 (TIM1_CH2) -> Rear-Left   PWMA
+ *   PE13 (TIM1_CH3) -> Rear-Right  PWMB
  *
  * Direction pins (GPIO push-pull):
  *   Front-Left:  IN1=PB0  IN2=PB1
  *   Front-Right: IN1=PF13 IN2=PF14
- *   Rear-Left:   IN1=PE7  IN2=PE12  (PE9 reserved for TIM1_CH1 PWM)
+ *   Rear-Left:   IN1=PE7  IN2=PE12
  *   Rear-Right:  IN1=PA5  IN2=PA4
  *
  * TB6612 truth table:
@@ -19,9 +19,6 @@
  *   IN1=L  IN2=H  PWM>0  -> Reverse
  *   IN1=H  IN2=H  any    -> Brake
  *   IN1=L  IN2=L  any    -> Coast (stop)
- *
- * TIM1 is initialized by CubeMX (MX_TIM1_Init) with:
- *   Prescaler=7, Period=999 -> 84MHz/8/1000 = 10.5 kHz PWM
  */
 
 #include "motor_driver_dc4ch.h"
@@ -30,23 +27,23 @@
 
 /* ---- Motor configuration table ---- */
 static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
-    /* [0] Front-Left  PWMA */
-    { .htim = &htim1, .channel = TIM_CHANNEL_1,
+    /* [0] Front-Left  PWMA - PA2 (TIM5_CH3) */
+    { .htim = &htim5, .channel = TIM_CHANNEL_3,
       .in1_port = GPIOB, .in1_pin = GPIO_PIN_0,
       .in2_port = GPIOB, .in2_pin = GPIO_PIN_1,
       .invert = 0U },
-    /* [1] Front-Right PWMB */
-    { .htim = &htim1, .channel = TIM_CHANNEL_2,
+    /* [1] Front-Right PWMB - PA3 (TIM5_CH4) */
+    { .htim = &htim5, .channel = TIM_CHANNEL_4,
       .in1_port = GPIOF, .in1_pin = GPIO_PIN_13,
       .in2_port = GPIOF, .in2_pin = GPIO_PIN_14,
       .invert = 0U },
-    /* [2] Rear-Left   PWMA */
-    { .htim = &htim1, .channel = TIM_CHANNEL_3,
+    /* [2] Rear-Left   PWMA - PE11 (TIM1_CH2) */
+    { .htim = &htim1, .channel = TIM_CHANNEL_2,
       .in1_port = GPIOE, .in1_pin = GPIO_PIN_7,
       .in2_port = GPIOE, .in2_pin = GPIO_PIN_12,
       .invert = 0U },
-    /* [3] Rear-Right  PWMB */
-    { .htim = &htim1, .channel = TIM_CHANNEL_4,
+    /* [3] Rear-Right  PWMB - PE13 (TIM1_CH3) */
+    { .htim = &htim1, .channel = TIM_CHANNEL_3,
       .in1_port = GPIOA, .in1_pin = GPIO_PIN_5,
       .in2_port = GPIOA, .in2_pin = GPIO_PIN_4,
       .invert = 0U },
@@ -115,18 +112,20 @@ void DC4_Motor_Init(void)
 
 void DC4_Motor_Start(void)
 {
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    /* Front wheels use TIM5 CH3/CH4 (PA2/PA3) */
+    HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
+    /* Rear wheels use TIM1 CH2/CH3 (PE11/PE13) */
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 }
 
 void DC4_Motor_Stop(void)
 {
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_4);
     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_4);
 }
 
 void DC4_Motor_SetSignedSpeed(uint8_t idx, int16_t signed_speed)
