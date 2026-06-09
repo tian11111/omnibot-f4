@@ -129,19 +129,14 @@ void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)
     DC4_Motor_SetSignedSpeed(1, (int16_t)fr);
     DC4_Motor_SetSignedSpeed(2, (int16_t)bl);
     DC4_Motor_SetSignedSpeed(3, (int16_t)br);
-    
-    /* Debug: print target speeds */
-    char msg[100];
-    snprintf(msg, sizeof(msg), "[DEBUG] Target: %ld,%ld,%ld,%ld\r\n", fl, fr, bl, br);
-    Bluetooth_SendString(msg);
 }
 
 void Mecanum_StopAll(void)
 {
-    MotorClosedLoop_SetTargetSpeed(0, 0);
-    MotorClosedLoop_SetTargetSpeed(1, 0);
-    MotorClosedLoop_SetTargetSpeed(2, 0);
-    MotorClosedLoop_SetTargetSpeed(3, 0);
+    DC4_Motor_SetSignedSpeed(0, 0);
+    DC4_Motor_SetSignedSpeed(1, 0);
+    DC4_Motor_SetSignedSpeed(2, 0);
+    DC4_Motor_SetSignedSpeed(3, 0);
 }
 
 /* -------------------- Protocol -------------------- */
@@ -155,29 +150,10 @@ static void App_ParseJoystickPacket(const char *packet)
         if (strcmp(type, "joystick") == 0)
         {
 #ifdef USE_MECANUM
-            char dbg_parse[80];
-            snprintf(dbg_parse, sizeof(dbg_parse), "[PARSE] lx=%d ly=%d rx=%d ry=%d\r\n", lx, ly, rx, ry);
-            Bluetooth_SendString(dbg_parse);
-            
             int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
             int16_t vy = (int16_t)clamp_i16((int16_t)(lx), -100, 100);
             int16_t wz = (int16_t)clamp_i16((int16_t)(rx), -100, 100);
-            
-            snprintf(dbg_parse, sizeof(dbg_parse), "[VXY] vx=%d vy=%d wz=%d\r\n", vx, vy, wz);
-            Bluetooth_SendString(dbg_parse);
-            
-            // DIRECT PWM TEST - bypass PID
-            DC4_Motor_SetSignedSpeed(0, vx);
-            DC4_Motor_SetSignedSpeed(1, vx);
-            DC4_Motor_SetSignedSpeed(2, vx);
-            DC4_Motor_SetSignedSpeed(3, vx);
-            
-            char msg[80];
-            snprintf(msg, sizeof(msg), "[DIRECT] PWM=%d\r\n", vx);
-            Bluetooth_SendString(msg);
-            
-            // Original code (commented out for test)
-            // Mecanum_SetMotion(vx, vy, wz);
+            Mecanum_SetMotion(vx, vy, wz);
 #endif
         }
         else if (strcmp(type, "gripper") == 0)
@@ -272,10 +248,4 @@ void App_AutoPlotTask(void)
         }
     }
 }
-
-
-
-
-
-
 

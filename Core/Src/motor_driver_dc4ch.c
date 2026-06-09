@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file  motor_driver_dc4ch.c
  * @brief 4-channel TB6612 motor driver via TIM1 PWM + dual-pin direction.
  *
@@ -25,6 +25,8 @@
  */
 
 #include "motor_driver_dc4ch.h"
+#include "bluetooth.h"
+#include <stdio.h>
 #include "tim.h"
 #include <stdlib.h>
 
@@ -158,3 +160,4 @@ void DC4_Motor_AllStop(void)
         DC4_Motor_SetSignedSpeed(i, 0);
     }
 }
+
