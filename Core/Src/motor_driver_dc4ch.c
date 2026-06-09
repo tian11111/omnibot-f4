@@ -116,18 +116,23 @@ void DC4_Motor_Init(void)
 
 void DC4_Motor_Start(void)
 {
-    /* Set all PWM duty to 0 before starting */
+    /* Front wheels use TIM5 CH3/CH4 (PA2/PA3) */
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_3, 0);
     __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_4, 0);
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 0);
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
-
-    /* Front wheels use TIM5 CH3/CH4 (PA2/PA3) */
     HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
     HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
-    /* Rear wheels use TIM1 CH2/CH3 (PE11/PE13) */
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+
+    /* Rear wheels use TIM1 CH2/CH3 (PE11/PE13)
+     * TIM1 is an advanced timer - use direct register access for reliability */
+    TIM1->CCR2 = 0;
+    TIM1->CCR3 = 0;
+    TIM1->CCER |= TIM_CCER_CC2E | TIM_CCER_CC3E;  /* Enable CH2/CH3 output */
+    TIM1->BDTR |= TIM_BDTR_MOE;                     /* Main Output Enable */
+    TIM1->CR1 |= TIM_CR1_CEN;                        /* Start timer */
+
+    /* Force compare to 0 again after timer starts */
+    TIM1->CCR2 = 0;
+    TIM1->CCR3 = 0;
 }
 
 void DC4_Motor_Stop(void)
