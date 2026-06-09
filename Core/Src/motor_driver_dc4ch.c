@@ -25,8 +25,6 @@
  */
 
 #include "motor_driver_dc4ch.h"
-#include "bluetooth.h"
-#include <stdio.h>
 #include "tim.h"
 #include <stdlib.h>
 

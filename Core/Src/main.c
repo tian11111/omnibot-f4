@@ -131,8 +131,6 @@ int main(void)
     App_ControlTask();
     /* 自动绘图任务 */
     App_AutoPlotTask();
-    /* 更新闭环控制（10ms周期） - 开环模式下禁用 */
-    // MotorClosedLoop_Update();
     HAL_Delay(10);
   }
   /* USER CODE END 3 */
