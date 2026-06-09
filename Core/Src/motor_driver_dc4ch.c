@@ -11,7 +11,7 @@
  * Direction pins (GPIO push-pull):
  *   Front-Left:  IN1=PB0  IN2=PB1
  *   Front-Right: IN1=PF13 IN2=PF14
- *   Rear-Left:   IN1=PE7  IN2=PE12
+ *   Rear-Left:   IN1=PE12 IN2=PE9
  *   Rear-Right:  IN1=PA5  IN2=PA4
  *
  * TB6612 truth table:
@@ -37,10 +37,10 @@ static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
       .in1_port = GPIOF, .in1_pin = GPIO_PIN_13,
       .in2_port = GPIOF, .in2_pin = GPIO_PIN_14,
       .invert = 0U },
-    /* [2] Rear-Left   PWMA - PE11 (TIM1_CH2) */
+    /* [2] Rear-Left   PWMA - PE11 (TIM1_CH2), IN1=PE12, IN2=PE9 */
     { .htim = &htim1, .channel = TIM_CHANNEL_2,
-      .in1_port = GPIOE, .in1_pin = GPIO_PIN_7,
-      .in2_port = GPIOE, .in2_pin = GPIO_PIN_12,
+      .in1_port = GPIOE, .in1_pin = GPIO_PIN_12,
+      .in2_port = GPIOE, .in2_pin = GPIO_PIN_9,
       .invert = 0U },
     /* [3] Rear-Right  PWMB - PE13 (TIM1_CH3) */
     { .htim = &htim1, .channel = TIM_CHANNEL_3,
