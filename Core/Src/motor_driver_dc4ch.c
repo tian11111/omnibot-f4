@@ -127,9 +127,6 @@ void DC4_Motor_Start(void)
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-
-    /* Invert polarity for TIM1 CH2/CH3 */
-    TIM1->CCER |= TIM_CCER_CC2P | TIM_CCER_CC3P;
 }
 
 void DC4_Motor_Stop(void)
@@ -158,14 +155,7 @@ void DC4_Motor_SetSignedSpeed(uint8_t idx, int16_t signed_speed)
 
     /* PWM duty: |spd| % of ARR */
     const uint32_t arr = __HAL_TIM_GET_AUTORELOAD(m->htim) + 1U;
-    uint32_t ccr = (uint32_t)((uint32_t)abs(spd) * arr / 100U);
-
-    /* TIM1 outputs have inverted polarity (CC2P/CC3P set in DC4_Motor_Start)
-     * so CCR value needs to be inverted: CCR=0 -> 100% duty, CCR=ARR -> 0% duty */
-    if (m->htim == &htim1) {
-        ccr = arr - ccr;
-    }
-
+    const uint32_t ccr = (uint32_t)((uint32_t)abs(spd) * arr / 100U);
     __HAL_TIM_SET_COMPARE(m->htim, m->channel, ccr);
 }
 
