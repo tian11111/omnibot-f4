@@ -98,7 +98,7 @@ void DC4_Motor_Init(void)
     /* Direction pins */
     cfg_out(GPIOB, GPIO_PIN_0  | GPIO_PIN_1);   /* Front-Left  IN1/IN2 */
     cfg_out(GPIOF, GPIO_PIN_13 | GPIO_PIN_14);  /* Front-Right IN1/IN2 */
-    cfg_out(GPIOE, GPIO_PIN_7  | GPIO_PIN_12);  /* Rear-Left   IN1/IN2 (PE7 replaces PE9) */
+    cfg_out(GPIOE, GPIO_PIN_12 | GPIO_PIN_9);   /* Rear-Left   IN1=PE12, IN2=PE9 */
     cfg_out(GPIOA, GPIO_PIN_5  | GPIO_PIN_4);   /* Rear-Right  IN1/IN2 */
 
     /* Default: all coast (IN1=L, IN2=L) */
