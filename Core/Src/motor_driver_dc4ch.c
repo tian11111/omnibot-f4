@@ -126,6 +126,8 @@ void DC4_Motor_Start(void)
      * TIM1 is an advanced timer - use direct register access for reliability */
     TIM1->CCR2 = 0;
     TIM1->CCR3 = 0;
+    /* Invert polarity for CH2 and CH3 (CC2P, CC3P bits) */
+    TIM1->CCER |= TIM_CCER_CC2P | TIM_CCER_CC3P;
     TIM1->CCER |= TIM_CCER_CC2E | TIM_CCER_CC3E;  /* Enable CH2/CH3 output */
     TIM1->BDTR |= TIM_BDTR_MOE;                     /* Main Output Enable */
     TIM1->CR1 |= TIM_CR1_CEN;                        /* Start timer */
