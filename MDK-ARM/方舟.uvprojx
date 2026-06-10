@@ -411,6 +411,26 @@
               <FilePath>..\Core\Src\bluetooth.c</FilePath>
             </File>
             <File>
+              <FileName>stepper_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\stepper_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\OLED.c</FilePath>
+            </File>
+            <File>
+              <FileName>soft_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\soft_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>oledfont.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\oledfont.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -549,16 +569,6 @@
               <FileName>stm32f4xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f4xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>motor_closedloop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\motor_closedloop.c</FilePath>
-            </File>
-            <File>
-              <FileName>stepper_interface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\stepper_interface.c</FilePath>
             </File>
           </Files>
         </Group>

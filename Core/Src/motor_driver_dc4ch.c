@@ -46,7 +46,7 @@ static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
     { .htim = &htim1, .channel = TIM_CHANNEL_3,
       .in1_port = GPIOA, .in1_pin = GPIO_PIN_5,
       .in2_port = GPIOA, .in2_pin = GPIO_PIN_4,
-      .invert = 0U },
+      .invert = 1U },
 };
 
 /* ---- GPIO helpers ---- */

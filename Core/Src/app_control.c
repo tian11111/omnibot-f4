@@ -96,8 +96,8 @@ void Mecanum_Init(void)
     DC4_Motor_Init();
     DC4_Motor_Start();
     DC4_Motor_AllStop();
-    MotorClosedLoop_Init();
-    MotorClosedLoop_Start();
+    //MotorClosedLoop_Init();
+   // MotorClosedLoop_Start();
 }
 
 void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)

@@ -22,12 +22,19 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 D:\project\fangzhou\-\MDK-ARM\∑Ω÷€.uvprojx
-Project File Date:  05/25/2026
+Project File Date:  06/10/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\keilmdk\ARM\ARMCC\Bin'
 Build target '∑Ω÷€'
-".\fangzhou.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+linking...
+.\fangzhou.axf: Error: L6218E: Undefined symbol MotorClosedLoop_GetCurrentSpeed (referred from app_control.o).
+.\fangzhou.axf: Error: L6218E: Undefined symbol MotorClosedLoop_SetPIDParams (referred from app_control.o).
+Not enough information to list image symbols.
+Not enough information to list load addresses in the image map.
+Finished: 2 information, 0 warning and 2 error messages.
+".\fangzhou.axf" - 2 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,6 +57,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

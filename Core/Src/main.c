@@ -19,7 +19,6 @@
 #include "app_control.h"
 #include "bluetooth.h"
 #include "stepper_interface.h"
-#include "motor_closedloop.h"
 #include "oled.h"
 #include "soft_i2c.h"
 /* USER CODE END Includes */
@@ -215,5 +214,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-
