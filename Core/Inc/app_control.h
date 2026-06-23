@@ -2,8 +2,6 @@
 #define __APP_CONTROL_H
 
 #include "main.h"
-#include "motor_driver_emm42.h"
-
 /* 定义USE_MECANUM启用麦轮控制 */
 #define USE_MECANUM
 

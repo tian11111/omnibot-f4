@@ -18,7 +18,7 @@
 /* USER CODE BEGIN Includes */
 #include "app_control.h"
 #include "bluetooth.h"
-#include "stepper_interface.h"
+#include "motor_driver_X42S.h"
 #include "oled.h"
 #include "soft_i2c.h"
 /* USER CODE END Includes */
@@ -41,7 +41,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,13 +98,22 @@ int main(void)
   MX_USART6_UART_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
   Soft_I2C_Init();
   OLED_Init();
   OLED_Clear();
-  StepperIF_Init();
-  
+
+  /* ---- 步进电机串口测试（上电跑一次，量产改 #if 0）---- */
+#if 0
+//uint8_t cmd []={0x01, 0xF6, 0x00, 0x00, 0x64, 0x00, 0x00, 0x6B };
+//HAL_UART_Transmit(&huart6,cmd,sizeof(cmd),HAL_MAX_DELAY);
+//MotorDriverX42S_SetLiftSpeed(100);  /* 正转 100 RPM */
+//while(1);
+  MotorDriverX42S_Serial_Test();
+#endif
+
   /* 初始化麦轮控制（包含电机驱动和闭环控制） */
   Mecanum_Init();
   
@@ -126,7 +134,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    /* 蓝牙控制任务 */
+		
+
+
+    /* 蓝牙控制任务（麦轮/绘图） */
     App_ControlTask();
     /* 自动绘图任务 */
     App_AutoPlotTask();

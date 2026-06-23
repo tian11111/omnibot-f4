@@ -1,6 +1,5 @@
 #include "app_control.h"
 #include "bluetooth.h"
-#include "motor_driver_emm42.h"
 #include "motor_driver_dc4ch.h"
 #include "motor_closedloop.h"
 #include "usart.h"
@@ -23,8 +22,7 @@ uint16_t g_auto_plot_interval_ms = 100;  /* 默认100ms发送一次 */
 static uint32_t g_last_plot_time = 0;
 
 /* -------------------- Gripper stepper subsystem -------------------- */
-static Emm42_Handle motor_x;   /* X axis - UART6 (M1) */
-static Emm42_Handle motor_y;   /* Y axis - UART2 (M2) */
+#include "motor_driver_X42S.h"
 
 static int16_t clamp_i16(int16_t v, int16_t lo, int16_t hi)
 {
@@ -45,6 +43,7 @@ static uint16_t abs_i16_to_u16(int16_t value)
     return (uint16_t)((value < 0) ? -value : value);
 }
 
+#if 0
 static void Motor_SetSignedSpeed(Emm42_Handle *motor, int16_t speed)
 {
     bool ccw = false;
@@ -64,7 +63,9 @@ static void Motor_SetSignedSpeed(Emm42_Handle *motor, int16_t speed)
 
     (void)Emm42_SetSpeed(motor, ccw, rpm, MOTOR_ACCEL, false);
 }
+#endif
 
+#if 0
 void Gripper_Init(void)
 {
     Emm42_Init(&motor_x, &huart6, 1U);  /* M1: USART6 */
@@ -75,20 +76,25 @@ void Gripper_Init(void)
     (void)Emm42_Enable(&motor_y, true, false);
     HAL_Delay(10);
 }
+#endif
 
+#if 0
 void Gripper_SetSpeed(int16_t x_speed, int16_t y_speed)
 {
     Motor_SetSignedSpeed(&motor_x, x_speed);
     HAL_Delay(2);
     Motor_SetSignedSpeed(&motor_y, y_speed);
 }
+#endif
 
+#if 0
 void Gripper_StopAll(void)
 {
     (void)Emm42_StopNow(&motor_x, false);
     HAL_Delay(2);
     (void)Emm42_StopNow(&motor_y, false);
 }
+#endif
 
 /* -------------------- Mecanum DC subsystem -------------------- */
 void Mecanum_Init(void)
@@ -158,9 +164,12 @@ static void App_ParseJoystickPacket(const char *packet)
         }
         else if (strcmp(type, "gripper") == 0)
         {
+            /* TODO: 迁移至 motor_driver_X42S 驱动 */
+#if 0
             int16_t gx = (int16_t)clamp_i16((int16_t)lx, -300, 300);
             int16_t gy = (int16_t)clamp_i16((int16_t)ly, -300, 300);
             Gripper_SetSpeed(gx, gy);
+#endif
         }
         else if (strcmp(type, "pid") == 0)
         {
@@ -193,7 +202,14 @@ void App_ControlTask(void)
         Bluetooth_SendString(BT_RxPacket);
         Bluetooth_SendString("]\r\n");
 
-        if (strcmp(BT_RxPacket, "query") == 0)
+        /* ---- X42S 步进升降电机指令 ---- */
+        if (strncmp(BT_RxPacket, "gripper,", 8) == 0)
+        {
+            int x_speed = 0, y_speed = 0;
+            sscanf(BT_RxPacket, "gripper,%d,%d", &x_speed, &y_speed);
+            MotorDriverX42S_SetDualSpeed((int16_t)x_speed, (int16_t) y_speed);
+        }
+        else if (strcmp(BT_RxPacket, "query") == 0)
         {
             Bluetooth_SendMotorStatus();
         }
