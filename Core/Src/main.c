@@ -124,7 +124,26 @@ int main(void)
   OLED_Clear();
   OLED_ShowChinese60x60(0, 0, 0);  // 显示"黄" 60x60
   OLED_ShowChinese60x60(60, 0, 1); // 显示"色" 60x60
+	
+//	OLED_Clear();
+//  OLED_ShowChinese60x60(0, 0, 2);  // 显示"蓝" 60x60
+//  OLED_ShowChinese60x60(60, 0, 3); // 显示"色" 60x60
+	
+//	OLED_Clear();
+//  OLED_ShowChinese60x60(0, 0, 4);  // 显示"红" 60x60
+//  OLED_ShowChinese60x60(60, 0, 5); // 显示"色" 60x60
 
+//	OLED_Clear();
+//  OLED_ShowChinese60x60(0, 0, 6);  // 显示"绿" 60x60
+//  OLED_ShowChinese60x60(60, 0, 7); // 显示"色" 60x60
+
+//	OLED_Clear();
+//  OLED_ShowChinese60x60(0, 0, 8);  // 显示"橙" 60x60
+//  OLED_ShowChinese60x60(60, 0, 9); // 显示"色" 60x60
+
+//	OLED_Clear();
+//  OLED_ShowChinese60x60(0, 0, 10);  // 显示"紫" 60x60
+//  OLED_ShowChinese60x60(60, 0, 11); // 显示"色" 60x60
   /* USER CODE END 2 */
 
   /* Infinite loop */
