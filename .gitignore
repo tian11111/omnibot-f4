@@ -1,0 +1,48 @@
+# Keil MDK 编译产物
+*.bak
+*.dep
+*.iex
+*.lnp
+*.mpf
+*.mpj
+*.msj
+*.or
+*.pfi
+*.pco
+*.ujt
+*.crf
+*.d
+*.o
+*.axf
+*.htm
+*.build_log.htm
+*.hex
+*.sct
+*.map
+*.lst
+*._ia
+*.vfe
+*.vfe_header
+
+# 调试器配置及临时文件
+JLinkLog.txt
+*.dbgconf
+*.uvguix.*
+
+# IAR EWARM 编译产物
+*.ewd
+*.ewp
+*.eww
+*.dep
+*.obj
+*.out
+*.sim
+*.wbk
+
+# 工程缓存
+Debug/
+DebugConfig/
+Listings/
+Objects/
+*.uvoptx
+*.uvproj.bak
