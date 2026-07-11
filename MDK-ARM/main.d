@@ -29,4 +29,5 @@
   ..\Core\Inc\usart.h ..\Core\Inc\gpio.h ..\Core\Inc\app_control.h \
   ..\Core\Inc\motor_driver_dc4ch.h ..\Core\Inc\bluetooth.h \
   ..\Core\Inc\motor_driver_X42S.h ..\Core\Inc\oled.h \
-  ..\Core\Inc\oledfont.h ..\Core\Inc\soft_i2c.h
+  ..\Core\Inc\oledfont.h ..\Core\Inc\soft_i2c.h \
+  ..\Core\Inc\solenoid_valve.h

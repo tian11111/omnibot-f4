@@ -88,6 +88,16 @@
 | `[plot-clear]` / `[p-c]` | 清空绘图区 |
 | `[stop]` | 停止自动发送 |
 
+### 电磁阀控制（PE10，VOUT1）
+
+| 命令 | 说明 |
+|------|------|
+| `[valve,on]` | 打开电磁阀 |
+| `[valve,off]` | 关闭电磁阀 |
+| `[valve,toggle]` | 切换开关状态 |
+| `[valve,pulse,500]` | 打开 500ms 后自动关闭（范围 1~60000ms） |
+| `[valve,query]` | 查询当前开关状态 |
+
 ## 快速开始
 
 1. 用 Keil MDK 打开 `MDK-ARM/方舟.uvprojx`，编译烧录

@@ -21,6 +21,7 @@
 #include "motor_driver_X42S.h"
 #include "oled.h"
 #include "soft_i2c.h"
+#include "solenoid_valve.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,6 +117,7 @@ int main(void)
 
   /* 初始化麦轮控制（包含电机驱动和闭环控制） */
   Mecanum_Init();
+  SolenoidValve_Init();
   
   /* 初始化蓝牙 */
   Bluetooth_Init();
@@ -158,6 +160,7 @@ int main(void)
 
     /* 蓝牙控制任务（麦轮/绘图） */
     App_ControlTask();
+    SolenoidValve_Task();
     /* 自动绘图任务 */
     App_AutoPlotTask();
     HAL_Delay(10);

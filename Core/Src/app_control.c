@@ -3,6 +3,7 @@
 #include "motor_driver_dc4ch.h"
 #include "motor_closedloop.h"
 #include "usart.h"
+#include "solenoid_valve.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -208,6 +209,42 @@ void App_ControlTask(void)
             int x_speed = 0, y_speed = 0;
             sscanf(BT_RxPacket, "gripper,%d,%d", &x_speed, &y_speed);
             MotorDriverX42S_SetDualSpeed((int16_t)x_speed, (int16_t) y_speed);
+        }
+				/* 电磁阀打开 */
+        else if (strcmp(BT_RxPacket, "valve,on") == 0)
+        {
+            SolenoidValve_On();
+            Bluetooth_SendString("[valve:on]\r\n");
+        }/* 电磁阀关闭 */
+        else if (strcmp(BT_RxPacket, "valve,off") == 0)
+        {
+            SolenoidValve_Off();
+            Bluetooth_SendString("[valve:off]\r\n");
+        }/* 电磁阀翻转开关 */
+        else if (strcmp(BT_RxPacket, "valve,toggle") == 0)
+        {
+            SolenoidValve_Toggle();
+            Bluetooth_SendString(SolenoidValve_IsOn() ?
+                                 "[valve:on]\r\n" : "[valve:off]\r\n");
+        }/* 电磁阀发送脉冲，用于投球 */
+        else if (strncmp(BT_RxPacket, "valve,pulse,", 12) == 0)
+        {
+            unsigned long duration_ms = 0UL;
+
+            if ((sscanf(BT_RxPacket, "valve,pulse,%lu", &duration_ms) == 1) &&
+                SolenoidValve_Pulse((uint32_t)duration_ms))
+            {
+                Bluetooth_SendString("[valve:pulse]\r\n");
+            }
+            else
+            {
+                Bluetooth_SendString("[valve:error,pulse-range=1..60000]\r\n");
+            }
+        }/* 判断电磁阀状态 */
+        else if (strcmp(BT_RxPacket, "valve,query") == 0)
+        {
+            Bluetooth_SendString(SolenoidValve_IsOn() ?
+                                 "[valve:on]\r\n" : "[valve:off]\r\n");
         }
         else if (strcmp(BT_RxPacket, "query") == 0)
         {

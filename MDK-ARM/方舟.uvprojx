@@ -405,6 +405,11 @@
               <FilePath>..\Core\Src\app_control.c</FilePath>
             </File>
             <File>
+              <FileName>solenoid_valve.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\solenoid_valve.c</FilePath>
+            </File>
+            <File>
               <FileName>bluetooth.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\bluetooth.c</FilePath>

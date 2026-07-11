@@ -27,4 +27,4 @@
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   ..\Core\Inc\motor_driver_dc4ch.h ..\Core\Inc\bluetooth.h \
   ..\Core\Inc\motor_closedloop.h ..\Core\Inc\usart.h \
-  ..\Core\Inc\motor_driver_X42S.h
+  ..\Core\Inc\solenoid_valve.h ..\Core\Inc\motor_driver_X42S.h

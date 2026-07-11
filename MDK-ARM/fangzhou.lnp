@@ -2,6 +2,7 @@
 ".\startup_stm32f407xx.o"
 ".\motor_driver_dc4ch.o"
 ".\app_control.o"
+".\solenoid_valve.o"
 ".\bluetooth.o"
 ".\motor_driver_x42s.o"
 ".\oled.o"
