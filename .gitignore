@@ -28,7 +28,8 @@
 JLinkLog.txt
 *.dbgconf
 *.uvguix.*
-
+*.uvoptx
+*.uvgui.*
 # IAR EWARM 编译产物
 *.ewd
 *.ewp
