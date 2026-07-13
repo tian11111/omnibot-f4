@@ -211,40 +211,77 @@ void App_ControlTask(void)
             MotorDriverX42S_SetDualSpeed((int16_t)x_speed, (int16_t) y_speed);
         }
 				/* 电磁阀打开 */
-        else if (strcmp(BT_RxPacket, "valve,on") == 0)
+        else if (strcmp(BT_RxPacket, "valve1,on") == 0)
         {
-            SolenoidValve_On();
-            Bluetooth_SendString("[valve:on]\r\n");
+            SolenoidValve1_On();
+            Bluetooth_SendString("[valve1:on]\r\n");
         }/* 电磁阀关闭 */
-        else if (strcmp(BT_RxPacket, "valve,off") == 0)
+        else if (strcmp(BT_RxPacket, "valve1,off") == 0)
         {
-            SolenoidValve_Off();
-            Bluetooth_SendString("[valve:off]\r\n");
+            SolenoidValve1_Off();
+            Bluetooth_SendString("[valve1:off]\r\n");
         }/* 电磁阀翻转开关 */
-        else if (strcmp(BT_RxPacket, "valve,toggle") == 0)
+        else if (strcmp(BT_RxPacket, "valve1,toggle") == 0)
         {
-            SolenoidValve_Toggle();
-            Bluetooth_SendString(SolenoidValve_IsOn() ?
-                                 "[valve:on]\r\n" : "[valve:off]\r\n");
+            SolenoidValve1_Toggle();
+            Bluetooth_SendString(SolenoidValve1_IsOn() ?
+                                 "[valve1:on]\r\n" : "[valve1:off]\r\n");
         }/* 电磁阀发送脉冲，用于投球 */
-        else if (strncmp(BT_RxPacket, "valve,pulse,", 12) == 0)
+        else if (strncmp(BT_RxPacket, "valve1,pulse,", 13) == 0)
         {
             unsigned long duration_ms = 0UL;
 
-            if ((sscanf(BT_RxPacket, "valve,pulse,%lu", &duration_ms) == 1) &&
-                SolenoidValve_Pulse((uint32_t)duration_ms))
+            if ((sscanf(BT_RxPacket, "valve1,pulse,%lu", &duration_ms) == 1) &&
+                SolenoidValve1_Pulse((uint32_t)duration_ms))
             {
-                Bluetooth_SendString("[valve:pulse]\r\n");
+                Bluetooth_SendString("[valve1:pulse]\r\n");
             }
             else
             {
-                Bluetooth_SendString("[valve:error,pulse-range=1..60000]\r\n");
+                Bluetooth_SendString("[valve1:error,pulse-range=1..60000]\r\n");
             }
         }/* 判断电磁阀状态 */
-        else if (strcmp(BT_RxPacket, "valve,query") == 0)
+        else if (strcmp(BT_RxPacket, "valve1,query") == 0)
         {
-            Bluetooth_SendString(SolenoidValve_IsOn() ?
-                                 "[valve:on]\r\n" : "[valve:off]\r\n");
+            Bluetooth_SendString(SolenoidValve1_IsOn() ?
+                                 "[valve1:on]\r\n" : "[valve1:off]\r\n");
+        }
+
+				/* ---- 电磁阀2：控制夹爪前后伸缩 ---- */
+        else if (strcmp(BT_RxPacket, "valve2,on") == 0)
+        {
+            SolenoidValve2_On();
+            Bluetooth_SendString("[valve2:on]\r\n");
+        }
+        else if (strcmp(BT_RxPacket, "valve2,off") == 0)
+        {
+            SolenoidValve2_Off();
+            Bluetooth_SendString("[valve2:off]\r\n");
+        }
+        else if (strcmp(BT_RxPacket, "valve2,toggle") == 0)
+        {
+            SolenoidValve2_Toggle();
+            Bluetooth_SendString(SolenoidValve2_IsOn() ?
+                                 "[valve2:on]\r\n" : "[valve2:off]\r\n");
+        }
+        else if (strncmp(BT_RxPacket, "valve2,pulse,", 13) == 0)
+        {
+            unsigned long duration_ms = 0UL;
+
+            if ((sscanf(BT_RxPacket, "valve2,pulse,%lu", &duration_ms) == 1) &&
+                SolenoidValve2_Pulse((uint32_t)duration_ms))
+            {
+                Bluetooth_SendString("[valve2:pulse]\r\n");
+            }
+            else
+            {
+                Bluetooth_SendString("[valve2:error,pulse-range=1..60000]\r\n");
+            }
+        }
+        else if (strcmp(BT_RxPacket, "valve2,query") == 0)
+        {
+            Bluetooth_SendString(SolenoidValve2_IsOn() ?
+                                 "[valve2:on]\r\n" : "[valve2:off]\r\n");
         }
         else if (strcmp(BT_RxPacket, "query") == 0)
         {

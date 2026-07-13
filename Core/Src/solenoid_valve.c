@@ -1,69 +1,117 @@
 #include "solenoid_valve.h"
 
-static bool s_valve_is_on = false;
-static bool s_pulse_active = false;
-static uint32_t s_pulse_deadline = 0U;
+static bool s1_valve_is_on = false;
+static bool s1_pulse_active = false;
+static uint32_t s1_pulse_deadline = 0U;
+static bool s2_valve_is_on = false;
+static bool s2_pulse_active = false;
+static uint32_t s2_pulse_deadline = 0U;
 
-
-/* ³õÊ¼»¯ -- ÉÏµçºó¶Ïµç */
+/* åˆå§‹åŒ– -- ä¸Šç”µå…³æ–­ */
 void SolenoidValve_Init(void)
 {
-    SolenoidValve_Off();
+    SolenoidValve1_Off();
+    SolenoidValve2_Off();
 }
 
-void SolenoidValve_Set(bool enabled)
+/* ---- Valve 1 ---- */
+
+void SolenoidValve1_Set(bool enabled)
 {
-    HAL_GPIO_WritePin(SOLENOID_VALVE_GPIO_Port,
-                      SOLENOID_VALVE_Pin,
+    HAL_GPIO_WritePin(SOLENOID_VALVE1_GPIO_Port,
+                      SOLENOID_VALVE1_Pin,
                       enabled ? GPIO_PIN_SET : GPIO_PIN_RESET);
-
-    s_valve_is_on = enabled;
-    s_pulse_active = false;
+    s1_valve_is_on = enabled;
+    s1_pulse_active = false;
 }
 
-/* ´ò¿ª */
-void SolenoidValve_On(void)
+void SolenoidValve1_On(void)
 {
-    SolenoidValve_Set(true);
+    SolenoidValve1_Set(true);
 }
 
-/* ¹Ø±Õ */
-void SolenoidValve_Off(void)
+void SolenoidValve1_Off(void)
 {
-    SolenoidValve_Set(false);
+    SolenoidValve1_Set(false);
 }
 
-/*  ÇÐ»»×´Ì¬  */
-void SolenoidValve_Toggle(void)
+void SolenoidValve1_Toggle(void)
 {
-    SolenoidValve_Set(!s_valve_is_on);
+    SolenoidValve1_Set(!s1_valve_is_on);
 }
 
-/*  ¶¨Ê±Âö³å ÈÃµç´Å·§´ò¿ªÖ¸¶¨Ê±¼ä£¬È»ºó×Ô¶¯¹Ø±Õ */
-bool SolenoidValve_Pulse(uint32_t duration_ms)
+bool SolenoidValve1_Pulse(uint32_t duration_ms)
 {
     if ((duration_ms == 0U) || (duration_ms > SOLENOID_VALVE_MAX_PULSE_MS))
     {
         return false;
     }
-
-    SolenoidValve_On();
-    s_pulse_deadline = HAL_GetTick() + duration_ms;
-    s_pulse_active = true;
+    SolenoidValve1_On();
+    s1_pulse_deadline = HAL_GetTick() + duration_ms;
+    s1_pulse_active = true;
     return true;
 }
 
-/* ¼ì²éÂö³åÊÇ·ñ½áÊø */
-void SolenoidValve_Task(void)
+bool SolenoidValve1_IsOn(void)
 {
-    if (s_pulse_active &&
-        ((int32_t)(HAL_GetTick() - s_pulse_deadline) >= 0))
-    {
-        SolenoidValve_Off();
-    }
+    return s1_valve_is_on;
 }
 
-bool SolenoidValve_IsOn(void)
+/* ---- Valve 2 ---- */
+
+void SolenoidValve2_Set(bool enabled)
 {
-    return s_valve_is_on;
+    HAL_GPIO_WritePin(SOLENOID_VALVE2_GPIO_Port,
+                      SOLENOID_VALVE2_Pin,
+                      enabled ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    s2_valve_is_on = enabled;
+    s2_pulse_active = false;
+}
+
+void SolenoidValve2_On(void)
+{
+    SolenoidValve2_Set(true);
+}
+
+void SolenoidValve2_Off(void)
+{
+    SolenoidValve2_Set(false);
+}
+
+void SolenoidValve2_Toggle(void)
+{
+    SolenoidValve2_Set(!s2_valve_is_on);
+}
+
+bool SolenoidValve2_Pulse(uint32_t duration_ms)
+{
+    if ((duration_ms == 0U) || (duration_ms > SOLENOID_VALVE_MAX_PULSE_MS))
+    {
+        return false;
+    }
+    SolenoidValve2_On();
+    s2_pulse_deadline = HAL_GetTick() + duration_ms;
+    s2_pulse_active = true;
+    return true;
+}
+
+bool SolenoidValve2_IsOn(void)
+{
+    return s2_valve_is_on;
+}
+
+/* ---- é€šç”¨ä»»åŠ¡ : æ‰«æè„‰å†²æ˜¯å¦åˆ°æœŸ ---- */
+
+void SolenoidValve_Task(void)
+{
+    if (s1_pulse_active &&
+        ((int32_t)(HAL_GetTick() - s1_pulse_deadline) >= 0))
+    {
+        SolenoidValve1_Off();
+    }
+    if (s2_pulse_active &&
+        ((int32_t)(HAL_GetTick() - s2_pulse_deadline) >= 0))
+    {
+        SolenoidValve2_Off();
+    }
 }

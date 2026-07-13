@@ -13,12 +13,19 @@
 #define SOLENOID_VALVE_MAX_PULSE_MS  60000U
 
 void SolenoidValve_Init(void);
-void SolenoidValve_Set(bool enabled);
-void SolenoidValve_On(void);
-void SolenoidValve_Off(void);
-void SolenoidValve_Toggle(void);
-bool SolenoidValve_Pulse(uint32_t duration_ms);
 void SolenoidValve_Task(void);
-bool SolenoidValve_IsOn(void);
+
+void SolenoidValve1_Set(bool enabled);
+void SolenoidValve2_Set(bool enabled);
+void SolenoidValve1_On(void);
+void SolenoidValve2_On(void);
+void SolenoidValve1_Off(void);
+void SolenoidValve2_Off(void);
+void SolenoidValve1_Toggle(void);
+void SolenoidValve2_Toggle(void);
+bool SolenoidValve1_Pulse(uint32_t duration_ms);
+bool SolenoidValve2_Pulse(uint32_t duration_ms);
+bool SolenoidValve1_IsOn(void);
+bool SolenoidValve2_IsOn(void);
 
 #endif /* __SOLENOID_VALVE_H */
