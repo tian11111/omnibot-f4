@@ -210,6 +210,7 @@ void App_ControlTask(void)
             sscanf(BT_RxPacket, "gripper,%d,%d", &x_speed, &y_speed);
             MotorDriverX42S_SetDualSpeed((int16_t)x_speed, (int16_t) y_speed);
         }
+				/* ---- 电磁阀1：控制夹爪开闭 ---- */
 				/* 电磁阀打开 */
         else if (strcmp(BT_RxPacket, "valve1,on") == 0)
         {
@@ -226,7 +227,7 @@ void App_ControlTask(void)
             SolenoidValve1_Toggle();
             Bluetooth_SendString(SolenoidValve1_IsOn() ?
                                  "[valve1:on]\r\n" : "[valve1:off]\r\n");
-        }/* 电磁阀发送脉冲，用于投球 */
+        }/* 电磁阀发送脉冲 */
         else if (strncmp(BT_RxPacket, "valve1,pulse,", 13) == 0)
         {
             unsigned long duration_ms = 0UL;
