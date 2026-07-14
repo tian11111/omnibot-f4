@@ -27,7 +27,7 @@ static TIM_HandleTypeDef* g_encoder_timers[DC4_MOTOR_COUNT] = {
 
 /* 编码器方向反向表：1表示反向，0表示正向 */
 static const uint8_t g_encoder_invert[DC4_MOTOR_COUNT] = {
-    0,  /* 前左 */
+    1,  /* 前左 */
     0,  /* 前右 */
     0,  /* 后左 */
     0   /* 后右 */

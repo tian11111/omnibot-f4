@@ -15,8 +15,13 @@ extern "C" {
 
 #define X42S_MAX_VEL         800.0f    /* 最大速度 RPM */
 
+#define X42S_MOTOR_X_DIR_INVERT  1U   /* USART6 (PG14/PG9) 电机方向取反：1=取反 */
+#define X42S_MOTOR_Y_DIR_INVERT  0U   /* USART2 电机方向取反：1=取反 */
+
 void X_V2_Vel_Control(UART_HandleTypeDef *huart,uint8_t addr, uint8_t dir, uint16_t acc, float vel, bool snF);
 void MotorDriverX42S_SetDualSpeed(int16_t x_speed, int16_t y_speed); 
+void MotorDriverX42S_Serial_Init(void);
+
 void MotorDriverX42S_ControlTask(void);           /* 蓝牙控制任务（主循环调用） */
 
 #ifdef __cplusplus

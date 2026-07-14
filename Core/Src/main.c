@@ -118,6 +118,7 @@ int main(void)
   /* 初始化麦轮控制（包含电机驱动和闭环控制） */
   Mecanum_Init();
   SolenoidValve_Init();
+  MotorDriverX42S_Serial_Init();
   
   /* 初始化蓝牙 */
   Bluetooth_Init();
@@ -164,6 +165,14 @@ int main(void)
     /* 自动绘图任务 */
     App_AutoPlotTask();
     HAL_Delay(10);
+
+    /* PD9 运行指示灯：每 500ms 翻转一次 */
+    static uint32_t s_blink_tick = 0;
+    if (HAL_GetTick() - s_blink_tick >= 500U)
+    {
+        s_blink_tick = HAL_GetTick();
+        HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_9);
+    }
   }
   /* USER CODE END 3 */
 }
