@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp.sp
+--cpu=Cortex-M4.fp
 ".\startup_stm32f407xx.o"
 ".\motor_driver_dc4ch.o"
 ".\app_control.o"
@@ -36,7 +36,7 @@
 ".\stm32f4xx_hal_tim_ex.o"
 ".\stm32f4xx_hal_uart.o"
 ".\system_stm32f4xx.o"
---strict --scatter ".\fangzhou.sct"
+--library_type=microlib --strict --scatter ".\fangzhou.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "fangzhou.map" -o .\fangzhou.axf
