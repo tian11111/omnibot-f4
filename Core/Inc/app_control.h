@@ -23,6 +23,7 @@ void Mecanum_StopAll(void);
 
 void App_ControlTask(void);
 void App_AutoPlotTask(void);
+void App_EmergencyStopCheck(void);
 
 /* 自动绘图控制 */
 extern uint8_t g_auto_plot_enable;

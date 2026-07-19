@@ -4,6 +4,7 @@
 #include "motor_closedloop.h"
 #include "usart.h"
 #include "solenoid_valve.h"
+#include "gpio.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -320,6 +321,51 @@ void App_ControlTask(void)
         }
         BT_RxFlag = 0;
     }
+}
+
+/* ---- PG4 急停检测（按键切换） ---- */
+/* 消抖间隔 200ms，避免单次按下多次翻转 */
+#define ESTOP_DEBOUNCE_MS  200U
+
+void App_EmergencyStopCheck(void)
+{
+    static uint8_t  s_estop_active    = 0;   /* 1=急停锁住 */
+    static uint32_t s_last_press_tick = 0;
+    static uint8_t  s_last_level      = 0xFF; /* 未初始化 */
+
+    uint8_t level = (uint8_t)HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_4);
+
+    /* 首次调用跳过边沿检测，避免上电误触发 */
+    if (s_last_level == 0xFF) {
+        s_last_level = level;
+        return;
+    }
+
+    /* 下降沿检测：高到低，且距离上次翻转 > 消抖时间 */
+    if (s_last_level == 1 && level == 0 &&
+        (HAL_GetTick() - s_last_press_tick) >= ESTOP_DEBOUNCE_MS)
+    {
+        s_last_press_tick = HAL_GetTick();
+        s_estop_active = s_estop_active ? 0 : 1;   /* 翻转 */
+
+        if (s_estop_active)
+        {
+            Mecanum_StopAll();
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);  /* LED 亮（低有效） */
+        }
+        else
+        {
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);    /* LED 灭（低有效） */
+        }
+    }
+
+    /* 急停锁住期间持续强制停止电机 */
+    if (s_estop_active)
+    {
+        Mecanum_StopAll();
+    }
+
+    s_last_level = level;
 }
 
 /* 自动发送绘图数据（需要在主循环中调用） */

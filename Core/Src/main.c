@@ -151,6 +151,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  /* 确保上电后急停LED初始熄灭 */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);   /* LED 初始灭（低有效） */
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -160,6 +164,8 @@ int main(void)
 
 
     /* 蓝牙控制任务（麦轮/绘图） */
+    /* PG4 急停按键检测 */
+    App_EmergencyStopCheck();
     App_ControlTask();
     SolenoidValve_Task();
     /* 自动绘图任务 */
