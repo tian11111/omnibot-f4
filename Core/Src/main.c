@@ -18,6 +18,8 @@
 /* USER CODE BEGIN Includes */
 #include "app_control.h"
 #include "bluetooth.h"
+#include "raspberry_pi.h"
+
 #include "motor_driver_X42S.h"
 #include "oled.h"
 #include "soft_i2c.h"
@@ -106,7 +108,7 @@ int main(void)
   OLED_Init();
   OLED_Clear();
 
-  /* ---- 步进电机串口测试（上电跑一次，量产改 #if 0）---- */
+  /* ---- 步进电机串口测试（上电跑一次，量产�?#if 0�?--- */
 #if 0
 //uint8_t cmd []={0x01, 0xF6, 0x00, 0x00, 0x64, 0x00, 0x00, 0x6B };
 //HAL_UART_Transmit(&huart6,cmd,sizeof(cmd),HAL_MAX_DELAY);
@@ -120,33 +122,17 @@ int main(void)
   SolenoidValve_Init();
   MotorDriverX42S_Serial_Init();
   
-  /* 初始化蓝牙 */
+  /* 初始化蓝�?*/
   Bluetooth_Init();
   Bluetooth_StartReceiveIT();
+
+  RaspberryPi_Init();
+  RaspberryPi_StartReceiveIT();
+  RaspberryPi_SendReady();
+
   
   OLED_Clear();
-  OLED_ShowChinese60x60(0, 0, 0);  // 显示"黄" 60x60
-  OLED_ShowChinese60x60(60, 0, 1); // 显示"色" 60x60
-	
-//	OLED_Clear();
-//  OLED_ShowChinese60x60(0, 0, 2);  // 显示"蓝" 60x60
-//  OLED_ShowChinese60x60(60, 0, 3); // 显示"色" 60x60
-	
-//	OLED_Clear();
-//  OLED_ShowChinese60x60(0, 0, 4);  // 显示"红" 60x60
-//  OLED_ShowChinese60x60(60, 0, 5); // 显示"色" 60x60
-
-//	OLED_Clear();
-//  OLED_ShowChinese60x60(0, 0, 6);  // 显示"绿" 60x60
-//  OLED_ShowChinese60x60(60, 0, 7); // 显示"色" 60x60
-
-//	OLED_Clear();
-//  OLED_ShowChinese60x60(0, 0, 8);  // 显示"橙" 60x60
-//  OLED_ShowChinese60x60(60, 0, 9); // 显示"色" 60x60
-
-//	OLED_Clear();
-//  OLED_ShowChinese60x60(0, 0, 10);  // 显示"紫" 60x60
-//  OLED_ShowChinese60x60(60, 0, 11); // 显示"色" 60x60
+  OLED_ShowCHinese(40, 2, 5, 0);  /* 已 */  OLED_ShowCHinese(56, 2, 6, 0);  /* 就 */  OLED_ShowCHinese(72, 2, 7, 0);  /* 绪 */
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,16 +149,24 @@ int main(void)
 		
 
 
-    /* 蓝牙控制任务（麦轮/绘图） */
-    /* PG4 急停按键检测 */
+    /* 蓝牙控制任务（麦�?绘图�?*/
+    /* PG4 急停按键检�?*/
     App_EmergencyStopCheck();
     App_ControlTask();
     SolenoidValve_Task();
     /* 自动绘图任务 */
     App_AutoPlotTask();
+
+    if (g_rpi_data_ready)
+    {
+        g_rpi_data_ready = 0;
+        OLED_Clear();
+        RaspberryPi_DisplayUpdate();
+    }
+
     HAL_Delay(10);
 
-    /* PD9 运行指示灯：每 500ms 翻转一次 */
+    /* PD9 运行指示灯：�?500ms 翻转一�?*/
     static uint32_t s_blink_tick = 0;
     if (HAL_GetTick() - s_blink_tick >= 500U)
     {

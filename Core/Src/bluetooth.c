@@ -1,12 +1,16 @@
 #include "bluetooth.h"
+#include "raspberry_pi.h"
+
 #include "motor_closedloop.h"
 #include <string.h>
 #include <stdio.h>
 
 extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart1;
+
 
 uint8_t BT_RxFlag = 0;
-//接收完成标志位
+//接收完成标志�?
 char BT_RxPacket[BT_RX_PACKET_MAX_LEN];
 //接收数据缓存
 
@@ -59,7 +63,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
                 }
                 else
                 {
-                    // 长度超了，直接丢包复位
+                    // 长度超了，直接丢包复�?
                     bt_rx_state = 0;
                     bt_rx_index = 0;
                     memset(BT_RxPacket, 0, sizeof(BT_RxPacket));
@@ -68,6 +72,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         }
 
         HAL_UART_Receive_IT(&huart3, &bt_rx_byte, 1);
+    }
+    else if (huart->Instance == USART1)
+    {
+        RaspberryPi_RxCallback();
+        HAL_UART_Receive_IT(&huart1, &s_rpi_rx_byte, 1);
     }
 }
 
@@ -85,7 +94,7 @@ void Bluetooth_SendMotorStatus(void)
     int32_t speed3 = MotorClosedLoop_GetCurrentSpeed(3);
 
     snprintf(tx_buf, BT_TX_PACKET_MAX_LEN,
-             "[s,%ld,%ld,%ld,%ld]\r\n",
+             "[s,%d,%d,%d,%d]\r\n",
              speed0, speed1, speed2, speed3);
 
     Bluetooth_SendString(tx_buf);
@@ -96,7 +105,7 @@ void Bluetooth_SendPlotData(int32_t d1, int32_t d2, int32_t d3, int32_t d4)
     char tx_buf[BT_TX_PACKET_MAX_LEN];
 
     snprintf(tx_buf, BT_TX_PACKET_MAX_LEN,
-             "[p,%ld,%ld,%ld,%ld]\r\n",
+             "[p,%d,%d,%d,%d]\r\n",
              d1, d2, d3, d4);
 
     Bluetooth_SendString(tx_buf);
