@@ -1,4 +1,4 @@
-#include "app_control.h"
+﻿#include "app_control.h"
 #include "bluetooth.h"
 #include "motor_driver_dc4ch.h"
 #include "motor_closedloop.h"
@@ -160,7 +160,7 @@ static void App_ParseJoystickPacket(const char *packet)
 #ifdef USE_MECANUM
             int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
             int16_t vy = (int16_t)clamp_i16((int16_t)(lx), -100, 100);
-            int16_t wz = (int16_t)clamp_i16((int16_t)(rx), -100, 100);
+            int16_t wz = (int16_t)clamp_i16((int16_t)(-rx), -100, 100); /* 取反：安卓左滑=左转 */
             Mecanum_SetMotion(vx, vy, wz);
 #endif
         }
@@ -351,6 +351,7 @@ void App_EmergencyStopCheck(void)
         if (s_estop_active)
         {
             Mecanum_StopAll();
+            MotorDriverX42S_SetDualSpeed(0, 0);
             HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);  /* LED 亮（低有效） */
         }
         else
@@ -385,4 +386,3 @@ void App_AutoPlotTask(void)
         }
     }
 }
-
