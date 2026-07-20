@@ -24,6 +24,12 @@ void OLED_Some_HorizontalShift(uint8_t direction,uint8_t start,uint8_t end);
 void OLED_VerticalAndHorizontalShift(uint8_t direction);
 void OLED_DisplayMode(uint8_t mode);
 void OLED_IntensityControl(uint8_t intensity);
+void OLED_ShowChar2x(uint8_t x, uint8_t y, uint8_t chr, uint8_t Color_Turn);
+void OLED_ShowString2x(uint8_t x, uint8_t y, char *chr, uint8_t Color_Turn);
+void OLED_ShowNum2x(uint8_t x, uint8_t y, unsigned int num, uint8_t len, uint8_t Color_Turn);
+void OLED_ShowCharBold(uint8_t x, uint8_t y, uint8_t chr, uint8_t Char_Size, uint8_t Color_Turn);
+void OLED_ShowStringBold(uint8_t x, uint8_t y, char *chr, uint8_t Char_Size, uint8_t Color_Turn);
+void OLED_ShowNumBold(uint8_t x, uint8_t y, unsigned int num, uint8_t len, uint8_t Char_Size, uint8_t Color_Turn);
 
 
 

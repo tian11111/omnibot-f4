@@ -75,11 +75,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     else if (huart->Instance == USART1)
     {
+        /* receive restart is handled inside RaspberryPi_RxCallback() */
         RaspberryPi_RxCallback();
-        HAL_UART_Receive_IT(&huart1, &s_rpi_rx_byte, 1);
     }
 }
 
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART1)
+    {
+        RaspberryPi_OnUartError();
+    }
+    else if (huart->Instance == USART3)
+    {
+        HAL_UART_Receive_IT(&huart3, &bt_rx_byte, 1);
+    }
+}
 void Bluetooth_SendString(const char *str)
 {
     HAL_UART_Transmit(&huart3, (uint8_t *)str, strlen(str), 100);

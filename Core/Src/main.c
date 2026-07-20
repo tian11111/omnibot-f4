@@ -127,12 +127,13 @@ int main(void)
   Bluetooth_StartReceiveIT();
 
   RaspberryPi_Init();
-  RaspberryPi_StartReceiveIT();
   RaspberryPi_SendReady();
+  HAL_Delay(20);
+  RaspberryPi_StartReceiveIT();
 
-  
   OLED_Clear();
-  OLED_ShowCHinese(40, 2, 5, 0);  /* 已 */  OLED_ShowCHinese(56, 2, 6, 0);  /* 就 */  OLED_ShowCHinese(72, 2, 7, 0);  /* 绪 */
+  OLED_ShowString(0, 0, "READY", 16, 0);
+  RaspberryPi_ShowStatus();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -157,11 +158,14 @@ int main(void)
     /* 自动绘图任务 */
     App_AutoPlotTask();
 
-    if (g_rpi_data_ready)
+    RaspberryPi_Task();
+
+    if (g_rpi_data_ready != 0)
     {
         g_rpi_data_ready = 0;
         OLED_Clear();
         RaspberryPi_DisplayUpdate();
+        RaspberryPi_SendEcho();
     }
 
     HAL_Delay(10);
