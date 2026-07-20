@@ -160,7 +160,7 @@ static void App_ParseJoystickPacket(const char *packet)
 #ifdef USE_MECANUM
             int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
             int16_t vy = (int16_t)clamp_i16((int16_t)(lx), -100, 100);
-            int16_t wz = (int16_t)clamp_i16((int16_t)(rx), -100, 100);
+            int16_t wz = (int16_t)clamp_i16((int16_t)(-rx), -100, 100); /* 取反：安卓左滑=左转 */
             Mecanum_SetMotion(vx, vy, wz);
 #endif
         }
