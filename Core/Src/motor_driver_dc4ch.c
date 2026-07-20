@@ -28,10 +28,11 @@
 /* ---- Motor configuration table ---- */
 static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
     /* [0] Front-Left  PWMA - PA2 (TIM5_CH3) */
+    /* invert=1: FL wiring polarity corrected */
     { .htim = &htim5, .channel = TIM_CHANNEL_3,
       .in1_port = GPIOB, .in1_pin = GPIO_PIN_0,
       .in2_port = GPIOB, .in2_pin = GPIO_PIN_1,
-      .invert = 0U },
+      .invert = 1U },
     /* [1] Front-Right PWMB - PA3 (TIM5_CH4) */
     { .htim = &htim5, .channel = TIM_CHANNEL_4,
       .in1_port = GPIOF, .in1_pin = GPIO_PIN_13,
