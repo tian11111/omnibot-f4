@@ -19,10 +19,10 @@
 
 | 电机 | PWM | IN1 | IN2 |
 |------|-----|-----|-----|
-| 前左 | PA2 (TIM5_CH3) | PB0 | PB1 |
-| 前右 | PA3 (TIM5_CH4) | PF13 | PF14 |
-| 后左 | PE11 (TIM1_CH2) | PE12 | PE9 |
-| 后右 | PE13 (TIM1_CH3) | PA5 | PA4 |
+| 前右（实际 idx0） | PA2 (TIM5_CH3) | PB0 | PB1 |
+| 前左（实际 idx1） | PA3 (TIM5_CH4) | PF13 | PF14 |
+| 后左（实际 idx2） | PE11 (TIM1_CH2) | PE12 | PE9 |
+| 后右（实际 idx3） | PE13 (TIM1_CH3) | PA5 | PA4 |
 
 **编码器：**
 
