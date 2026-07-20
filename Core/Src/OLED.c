@@ -507,4 +507,142 @@ void OLED_IntensityControl(uint8_t intensity)
 	OLED_WR_CMD(intensity);
 }
 
+/* ===== 2x scaled 8x16 font (16x32 px) + bold helpers ===== */
+static void OLED_ExpandCol2x(uint8_t col, uint8_t *lo, uint8_t *hi)
+{
+    uint16_t e = 0;
+    uint8_t i;
+    for (i = 0; i < 8U; i++)
+    {
+        if (col & (uint8_t)(1U << i))
+        {
+            e |= (uint16_t)(3U << (i * 2U));
+        }
+    }
+    *lo = (uint8_t)(e & 0xFFU);
+    *hi = (uint8_t)((e >> 8) & 0xFFU);
+}
 
+void OLED_ShowChar2x(uint8_t x, uint8_t y, uint8_t chr, uint8_t Color_Turn)
+{
+    unsigned char c = (unsigned char)(chr - ' ');
+    uint8_t i, d, lo, hi;
+
+    /* top 8 rows of 8x16 -> pages y, y+1, width x2 */
+    for (i = 0; i < 8U; i++)
+    {
+        d = F8X16[c * 16U + i];
+        if (Color_Turn) { d = (uint8_t)(~d); }
+        OLED_ExpandCol2x(d, &lo, &hi);
+
+        OLED_Set_Pos((uint8_t)(x + i * 2U), y);
+        OLED_WR_DATA(lo);
+        OLED_Set_Pos((uint8_t)(x + i * 2U + 1U), y);
+        OLED_WR_DATA(lo);
+
+        OLED_Set_Pos((uint8_t)(x + i * 2U), (uint8_t)(y + 1U));
+        OLED_WR_DATA(hi);
+        OLED_Set_Pos((uint8_t)(x + i * 2U + 1U), (uint8_t)(y + 1U));
+        OLED_WR_DATA(hi);
+    }
+
+    /* bottom 8 rows -> pages y+2, y+3 */
+    for (i = 0; i < 8U; i++)
+    {
+        d = F8X16[c * 16U + 8U + i];
+        if (Color_Turn) { d = (uint8_t)(~d); }
+        OLED_ExpandCol2x(d, &lo, &hi);
+
+        OLED_Set_Pos((uint8_t)(x + i * 2U), (uint8_t)(y + 2U));
+        OLED_WR_DATA(lo);
+        OLED_Set_Pos((uint8_t)(x + i * 2U + 1U), (uint8_t)(y + 2U));
+        OLED_WR_DATA(lo);
+
+        OLED_Set_Pos((uint8_t)(x + i * 2U), (uint8_t)(y + 3U));
+        OLED_WR_DATA(hi);
+        OLED_Set_Pos((uint8_t)(x + i * 2U + 1U), (uint8_t)(y + 3U));
+        OLED_WR_DATA(hi);
+    }
+}
+
+void OLED_ShowString2x(uint8_t x, uint8_t y, char *chr, uint8_t Color_Turn)
+{
+    uint8_t j = 0;
+    while (chr[j] != '\0')
+    {
+        OLED_ShowChar2x(x, y, (uint8_t)chr[j], Color_Turn);
+        x = (uint8_t)(x + 16U); /* 8*2 */
+        if (x > 112U)
+        {
+            x = 0;
+            y = (uint8_t)(y + 4U); /* 4 pages tall */
+        }
+        j++;
+    }
+}
+
+void OLED_ShowNum2x(uint8_t x, uint8_t y, unsigned int num, uint8_t len, uint8_t Color_Turn)
+{
+    uint8_t t, temp;
+    uint8_t enshow = 0;
+    for (t = 0; t < len; t++)
+    {
+        temp = (uint8_t)((num / oled_pow(10, len - t - 1)) % 10);
+        if (enshow == 0 && t < (len - 1))
+        {
+            if (temp == 0)
+            {
+                OLED_ShowChar2x((uint8_t)(x + 16U * t), y, ' ', Color_Turn);
+                continue;
+            }
+            else
+            {
+                enshow = 1;
+            }
+        }
+        OLED_ShowChar2x((uint8_t)(x + 16U * t), y, (uint8_t)(temp + '0'), Color_Turn);
+    }
+}
+
+/* bold = draw twice with 1px horizontal offset (8x16/6x8) */
+void OLED_ShowCharBold(uint8_t x, uint8_t y, uint8_t chr, uint8_t Char_Size, uint8_t Color_Turn)
+{
+    OLED_ShowChar(x, y, chr, Char_Size, Color_Turn);
+    OLED_ShowChar((uint8_t)(x + 1U), y, chr, Char_Size, Color_Turn);
+}
+
+void OLED_ShowStringBold(uint8_t x, uint8_t y, char *chr, uint8_t Char_Size, uint8_t Color_Turn)
+{
+    uint8_t j = 0;
+    uint8_t step = (Char_Size == 12) ? 6U : 8U;
+    while (chr[j] != '\0')
+    {
+        OLED_ShowCharBold(x, y, (uint8_t)chr[j], Char_Size, Color_Turn);
+        x = (uint8_t)(x + step);
+        j++;
+    }
+}
+
+void OLED_ShowNumBold(uint8_t x, uint8_t y, unsigned int num, uint8_t len, uint8_t Char_Size, uint8_t Color_Turn)
+{
+    uint8_t t, temp;
+    uint8_t enshow = 0;
+    uint8_t step = (Char_Size == 12) ? 6U : 8U;
+    for (t = 0; t < len; t++)
+    {
+        temp = (uint8_t)((num / oled_pow(10, len - t - 1)) % 10);
+        if (enshow == 0 && t < (len - 1))
+        {
+            if (temp == 0)
+            {
+                OLED_ShowCharBold((uint8_t)(x + step * t), y, ' ', Char_Size, Color_Turn);
+                continue;
+            }
+            else
+            {
+                enshow = 1;
+            }
+        }
+        OLED_ShowCharBold((uint8_t)(x + step * t), y, (uint8_t)(temp + '0'), Char_Size, Color_Turn);
+    }
+}

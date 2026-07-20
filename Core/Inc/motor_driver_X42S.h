@@ -15,7 +15,7 @@ extern "C" {
 
 #define X42S_MAX_VEL         800.0f    /* 最大速度 RPM */
 
-#define X42S_MOTOR_X_DIR_INVERT  1U   /* USART6 (PG14/PG9) 电机方向取反：1=取反 */
+#define X42S_MOTOR_X_DIR_INVERT  0U   /* USART6 (PG14/PG9) 电机方向取反：1=取反；当前接线正向 */
 #define X42S_MOTOR_Y_DIR_INVERT  0U   /* USART2 电机方向取反：1=取反 */
 
 void X_V2_Vel_Control(UART_HandleTypeDef *huart,uint8_t addr, uint8_t dir, uint16_t acc, float vel, bool snF);
