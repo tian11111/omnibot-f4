@@ -1,4 +1,4 @@
-#include "app_control.h"
+﻿#include "app_control.h"
 #include "bluetooth.h"
 #include "motor_driver_dc4ch.h"
 #include "motor_closedloop.h"
@@ -351,6 +351,7 @@ void App_EmergencyStopCheck(void)
         if (s_estop_active)
         {
             Mecanum_StopAll();
+            MotorDriverX42S_SetDualSpeed(0, 0);
             HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);  /* LED 亮（低有效） */
         }
         else
@@ -385,4 +386,3 @@ void App_AutoPlotTask(void)
         }
     }
 }
-
