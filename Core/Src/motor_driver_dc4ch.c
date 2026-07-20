@@ -39,10 +39,11 @@ static const DC4_MotorCfg g_dc4_motors[DC4_MOTOR_COUNT] = {
       .in2_port = GPIOF, .in2_pin = GPIO_PIN_14,
       .invert = 0U },
     /* [2] Rear-Left   PWMA - PE11 (TIM1_CH2), IN1=PE12, IN2=PE9 */
+    /* invert=1: RL wiring polarity corrected */
     { .htim = &htim1, .channel = TIM_CHANNEL_2,
       .in1_port = GPIOE, .in1_pin = GPIO_PIN_12,
       .in2_port = GPIOE, .in2_pin = GPIO_PIN_9,
-      .invert = 0U },
+      .invert = 1U },
     /* [3] Rear-Right  PWMB - PE13 (TIM1_CH3) */
     { .htim = &htim1, .channel = TIM_CHANNEL_3,
       .in1_port = GPIOA, .in1_pin = GPIO_PIN_5,
