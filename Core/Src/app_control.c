@@ -17,6 +17,10 @@
 #define MOTOR_MAX_RPM          300U
 #define MOTOR_ACCEL            10U
 #define MECANUM_PWM_MAX        100
+#define JOYSTICK_TIMEOUT_MS    300U
+
+static uint32_t g_last_joystick_tick = 0U;
+static uint8_t g_joystick_command_active = 0U;
 
 /* 自动绘图控制 */
 uint8_t g_auto_plot_enable = 0;
@@ -164,6 +168,8 @@ static void App_ParseJoystickPacket(const char *packet)
             /* App steering-wheel RX direction is opposite to chassis yaw. */
             int16_t wz = (int16_t)-clamp_i16((int16_t)(rx), -100, 100);
             Mecanum_SetMotion(vx, vy, wz);
+            g_last_joystick_tick = HAL_GetTick();
+            g_joystick_command_active = 1U;
 #endif
         }
         else if (strcmp(type, "gripper") == 0)
@@ -323,6 +329,20 @@ void App_ControlTask(void)
         }
         BT_RxFlag = 0;
     }
+
+#ifdef USE_MECANUM
+    /*
+     * Fail-safe: stop the chassis if joystick packets disappear because of
+     * Bluetooth disconnects or prolonged packet loss.  Unsigned subtraction
+     * keeps the timeout check correct across the HAL tick wraparound.
+     */
+    if ((g_joystick_command_active != 0U) &&
+        ((uint32_t)(HAL_GetTick() - g_last_joystick_tick) > JOYSTICK_TIMEOUT_MS))
+    {
+        Mecanum_StopAll();
+        g_joystick_command_active = 0U;
+    }
+#endif
 }
 
 /* ---- PG4 急停检测（按键切换） ---- */
