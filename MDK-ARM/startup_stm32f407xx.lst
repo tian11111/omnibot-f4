@@ -829,12 +829,11 @@ ARM Macro Assembler    Page 13
   422 0000001C                 END
               00000000 
               00000000 
-Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
---depend=.\startup_stm32f407xx.d -o.\startup_stm32f407xx.o -I.\RTE\_____ -IC:\U
-sers\AelevenEven\AppData\Local\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include --p
-redefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 543" --predefi
-ne="STM32F407xx SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32f407xx.l
-st startup_stm32f407xx.s
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --depend=.
+\startup_stm32f407xx.d -o.\startup_stm32f407xx.o -I.\RTE\_____ -IC:\keilmdk\ARM
+\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include --predefine="__MICROLIB SETA 1" --pred
+efine="__UVISION_VERSION SETA 524" --predefine="_RTE_ SETA 1" --predefine="STM3
+2F407xx SETA 1" --list=startup_stm32f407xx.lst startup_stm32f407xx.s
 
 
 

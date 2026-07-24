@@ -1,10 +1,10 @@
---cpu=Cortex-M4.fp.sp
+--cpu=Cortex-M4.fp
 ".\startup_stm32f407xx.o"
 ".\motor_driver_dc4ch.o"
 ".\app_control.o"
 ".\solenoid_valve.o"
 ".\bluetooth.o"
-".\raspberry_pi.o"
+".\serial_protocol.o"
 ".\motor_driver_x42s.o"
 ".\oled.o"
 ".\soft_i2c.o"
