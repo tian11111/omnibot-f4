@@ -18,7 +18,7 @@
 /* USER CODE BEGIN Includes */
 #include "app_control.h"
 #include "bluetooth.h"
-#include "raspberry_pi.h"
+#include "serial_protocol.h"
 
 #include "motor_driver_X42S.h"
 #include "oled.h"
@@ -104,6 +104,9 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
+  /* Stop any X42S driver-stored boot motion before other subsystems. */
+  MotorDriverX42S_Serial_Init();
+
   Soft_I2C_Init();
   OLED_Init();
   OLED_Clear();
@@ -120,27 +123,24 @@ int main(void)
   /* 初始化麦轮控制（包含电机驱动和闭环控制） */
   Mecanum_Init();
   SolenoidValve_Init();
-  MotorDriverX42S_Serial_Init();
   
   /* 初始化蓝�?*/
   Bluetooth_Init();
   Bluetooth_StartReceiveIT();
 
-  RaspberryPi_Init();
-  RaspberryPi_SendReady();
-  HAL_Delay(20);
-  RaspberryPi_StartReceiveIT();
+  SerialProtocol_Init();
+  SerialProtocol_StartReceiveIT();
 
   OLED_Clear();
   OLED_ShowString(0, 0, "READY", 16, 0);
-  RaspberryPi_ShowStatus();
+  SerialProtocol_ShowStatus();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
   /* 确保上电后急停LED初始熄灭 */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);   /* LED 初始灭（低有效） */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_SET);   /* PD9 emergency-stop LED off (active low) */
 
   while (1)
   {
@@ -154,29 +154,15 @@ int main(void)
     /* PG4 急停按键检�?*/
     App_EmergencyStopCheck();
     App_ControlTask();
+    MotorDriverX42S_ControlTask();
     SolenoidValve_Task();
     /* 自动绘图任务 */
     App_AutoPlotTask();
 
-    RaspberryPi_Task();
-
-    if (g_rpi_data_ready != 0)
-    {
-        g_rpi_data_ready = 0;
-        OLED_Clear();
-        RaspberryPi_DisplayUpdate();
-        RaspberryPi_SendEcho();
-    }
-
+    SerialProtocol_Task();
     HAL_Delay(10);
 
     /* PD9 运行指示灯：�?500ms 翻转一�?*/
-    static uint32_t s_blink_tick = 0;
-    if (HAL_GetTick() - s_blink_tick >= 500U)
-    {
-        s_blink_tick = HAL_GetTick();
-        HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_9);
-    }
   }
   /* USER CODE END 3 */
 }

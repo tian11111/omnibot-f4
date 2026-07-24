@@ -1097,6 +1097,9 @@
         <file>
           <name>$PROJ_DIR$/../Core/Src/stm32f4xx_hal_msp.c</name>
         </file>
+        <file>
+          <name>$PROJ_DIR$/../Core/Src/serial_protocol.c</name>
+        </file>
       </group>
     </group>
   </group>

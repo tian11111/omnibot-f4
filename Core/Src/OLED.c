@@ -361,28 +361,6 @@ void OLED_ShowCHinese(uint8_t x,uint8_t y,uint8_t no, uint8_t Color_Turn)
          }
 }
 
-/**
- * @function: void OLED_ShowChinese60x60(uint8_t x, uint8_t y, uint8_t no)
- * @description: 在OLED特定位置开始显示60X60汉字
- * @param {uint8_t} x 待显示的汉字起始横坐标
- * @param {uint8_t} y 待显示的汉字起始纵坐标 (页地址 0~7)
- * @param {uint8_t} no 待显示的汉字编号
- */
-void OLED_ShowChinese60x60(uint8_t x, uint8_t y, uint8_t no)
-{
-    uint8_t page, col;
-    uint32_t index = 0;
-    
-    for (page = 0; page < 8; page++)
-    {
-        OLED_Set_Pos(x, y + page);
-        for (col = 0; col < 60; col++)
-        {
-            OLED_WR_DATA(zh60x60[no][index]);
-            index++;
-        }
-    }
-}
 
 /**
  * @function: void OLED_DrawBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *  BMP,uint8_t Color_Turn)
