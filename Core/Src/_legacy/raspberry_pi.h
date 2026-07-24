@@ -3,22 +3,17 @@
 
 #include "main.h"
 
-#define RPI_RX_PACKET_MAX_LEN    256U
-#define RPI_MAX_ITEMS            8U
-#define RPI_MAX_FIELDS           3U
-#define RPI_FIELD_MAX_LEN        16U
-
-typedef struct
-{
-    uint8_t field_count;
-    char fields[RPI_MAX_FIELDS][RPI_FIELD_MAX_LEN];
-} RaspberryPi_Item;
+#define RPI_RX_PACKET_MAX_LEN    64
+#define RPI_MAX_COLORS           3
 
 extern uint8_t g_rpi_data_ready;
-extern uint8_t g_rpi_item_count;
-extern RaspberryPi_Item g_rpi_items[RPI_MAX_ITEMS];
-extern char g_rpi_last_frame[RPI_RX_PACKET_MAX_LEN];
-extern char    g_rpi_color[16];
+
+/* 上行 2 个颜色，下行 3 个颜色 */
+extern char    g_rpi_line1_colors[2][16];
+extern char    g_rpi_line2_colors[3][16];
+extern uint8_t g_rpi_line1_count;
+extern uint8_t g_rpi_line2_count;
+
 extern uint16_t g_rpi_code1;
 extern uint16_t g_rpi_code2;
 extern uint8_t s_rpi_rx_byte;
@@ -31,6 +26,7 @@ void RaspberryPi_StartReceiveIT(void);
 void RaspberryPi_Task(void);
 void RaspberryPi_RxCallback(void);
 void RaspberryPi_DisplayUpdate(void);
+void RaspberryPi_ProcessFrames(void);
 void RaspberryPi_ShowStatus(void);
 void RaspberryPi_SendReady(void);
 void RaspberryPi_SendEcho(void);

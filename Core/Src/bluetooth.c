@@ -1,5 +1,5 @@
 #include "bluetooth.h"
-#include "raspberry_pi.h"
+#include "serial_protocol.h"
 #include "motor_driver_X42S.h"
 
 #include "motor_closedloop.h"
@@ -76,8 +76,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     else if (huart->Instance == USART1)
     {
-        /* receive restart is handled inside RaspberryPi_RxCallback() */
-        RaspberryPi_RxCallback();
+        /* receive restart is handled inside SerialProtocol_RxCallback() */
+        SerialProtocol_RxCallback();
     }
     else if ((huart->Instance == USART2) || (huart->Instance == USART6))
     {
@@ -91,7 +91,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART1)
     {
-        RaspberryPi_OnUartError();
+        SerialProtocol_OnUartError();
     }
     else if (huart->Instance == USART3)
     {

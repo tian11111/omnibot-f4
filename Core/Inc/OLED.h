@@ -17,7 +17,6 @@ void OLED_Showdecimal(uint8_t x,uint8_t y,float num,uint8_t z_len,uint8_t f_len,
 void OLED_ShowChar(uint8_t x,uint8_t y,uint8_t chr,uint8_t Char_Size,uint8_t Color_Turn);
 void OLED_ShowString(uint8_t x,uint8_t y,char*chr,uint8_t Char_Size,uint8_t Color_Turn);
 void OLED_ShowCHinese(uint8_t x,uint8_t y,uint8_t no,uint8_t Color_Turn);
-void OLED_ShowChinese60x60(uint8_t x, uint8_t y, uint8_t no);
 void OLED_DrawBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t *  BMP,uint8_t Color_Turn);
 void OLED_HorizontalShift(uint8_t direction);
 void OLED_Some_HorizontalShift(uint8_t direction,uint8_t start,uint8_t end);
