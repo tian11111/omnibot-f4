@@ -2,6 +2,7 @@
 #include "bluetooth.h"
 #include "motor_driver_dc4ch.h"
 #include "motor_closedloop.h"
+#include "motor_driver_X42S.h"
 #include "usart.h"
 #include "solenoid_valve.h"
 #include "gpio.h"
@@ -21,6 +22,164 @@
 
 static uint32_t g_last_joystick_tick = 0U;
 static uint8_t g_joystick_command_active = 0U;
+static uint8_t g_estop_active = 0U;
+
+static const char *App_X42SLiftStateName(X42S_LiftState state)
+{
+    switch (state)
+    {
+    case X42S_LIFT_STATE_CONFIGURING:
+        return "configuring";
+    case X42S_LIFT_STATE_HOMING:
+        return "homing";
+    case X42S_LIFT_STATE_ENABLING:
+        return "enabling";
+    case X42S_LIFT_STATE_READY:
+        return "ready";
+    case X42S_LIFT_STATE_FAULT:
+        return "fault";
+    case X42S_LIFT_STATE_UNHOMED:
+    default:
+        return "unhomed";
+    }
+}
+
+static const char *App_X42SHomeStateName(const X42S_StatusData *status)
+{
+    if ((status->home_flags & 0x08U) != 0U)
+    {
+        return "failed";
+    }
+    if ((status->home_flags & 0x04U) != 0U)
+    {
+        return "running";
+    }
+    return (status->homed_valid != 0U) ? "ready" : "unhomed";
+}
+
+static void App_X42SDiagnosticTask(void)
+{
+    char tx_buf[BT_TX_PACKET_MAX_LEN];
+    X42S_StatusData status;
+    X42S_ConfigData config;
+    X42S_ErrorData error;
+    X42S_EventData event;
+
+    if (MotorDriverX42S_TakeLiftStatus(&status))
+    {
+        (void)snprintf(tx_buf, sizeof(tx_buf),
+                       "[x42s:status,fw=Emm,v=%umV,i=%umA,"
+                       "rpm=%c%u,err=%c%lu.%02ludeg,"
+                       "clog=%u,protect=%u,en=%u,home=%s,sw=%s]\r\n",
+                       status.bus_voltage_mv,
+                       status.phase_current_ma,
+                       status.speed_negative ? '-' : '+',
+                       status.speed_rpm,
+                       status.position_error_negative ? '-' : '+',
+                       (unsigned long)(status.position_error_x100_deg / 100U),
+                       (unsigned long)(status.position_error_x100_deg % 100U),
+                       (status.motor_flags >> 2) & 1U,
+                       (status.motor_flags >> 3) & 1U,
+                       status.motor_flags & 1U,
+                       App_X42SHomeStateName(&status),
+                       App_X42SLiftStateName(status.software_state));
+        Bluetooth_SendString(tx_buf);
+    }
+
+    if (MotorDriverX42S_TakeLiftConfig(&config))
+    {
+        (void)snprintf(tx_buf, sizeof(tx_buf),
+                       "[x42s:config,fw=Emm,baud=%lu,Ma_Limit=%umA,"
+                       "clogmode=%u,clogrpm=%u,clogcur=%umA,clogms=%u]\r\n",
+                       (unsigned long)config.uart_baud_rate,
+                       config.max_current_ma,
+                       config.clog_mode,
+                       config.clog_speed_rpm,
+                       config.clog_current_ma,
+                       config.clog_time_ms);
+        Bluetooth_SendString(tx_buf);
+    }
+
+    if (MotorDriverX42S_TakeError(&error))
+    {
+        (void)snprintf(tx_buf, sizeof(tx_buf),
+                       "[x42s:error,axis=%c,func=%02X,code=%02X,source=%s]\r\n",
+                       error.axis, error.function_code, error.status_code,
+                       (error.source == X42S_ERROR_SOURCE_DRIVER) ?
+                       "driver" : "parser");
+        Bluetooth_SendString(tx_buf);
+    }
+
+    while (MotorDriverX42S_TakeEvent(&event))
+    {
+        switch (event.type)
+        {
+        case X42S_EVENT_HOME_RUNNING:
+            Bluetooth_SendString("[x42s:home,axis=x,state=running]\r\n");
+            break;
+        case X42S_EVENT_HOME_READY:
+            Bluetooth_SendString("[x42s:home,axis=x,state=ready]\r\n");
+            break;
+        case X42S_EVENT_HOME_FAILED:
+            Bluetooth_SendString("[x42s:home,axis=x,state=failed]\r\n");
+            break;
+        case X42S_EVENT_LIMIT:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:limit,axis=%c,dir=%s]\r\n",
+                           event.axis,
+                           (event.direction > 0) ? "up" : "down");
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_STALL_FAULT:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:fault,axis=%c,reason=stall]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_RX_TIMEOUT:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:fault,axis=%c,reason=rx-timeout]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_HOME_TIMEOUT:
+            Bluetooth_SendString("[x42s:fault,axis=x,reason=home-timeout]\r\n");
+            break;
+        case X42S_EVENT_UNHOMED:
+            Bluetooth_SendString("[x42s:fault,axis=x,reason=unhomed]\r\n");
+            break;
+        case X42S_EVENT_PROTECTION_CLEARED:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:protection,axis=%c,state=cleared]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_AUTOHOME_DISABLED:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:auto-home,axis=%c,state=disabled]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_AUTORUN_CLEARED:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:autorun,axis=%c,state=cleared]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_COMM_RECOVERED:
+            (void)snprintf(tx_buf, sizeof(tx_buf),
+                           "[x42s:comm,axis=%c,state=recovered]\r\n",
+                           event.axis);
+            Bluetooth_SendString(tx_buf);
+            break;
+        case X42S_EVENT_ENABLE_FAILED:
+            Bluetooth_SendString("[x42s:fault,axis=x,reason=enable-failed]\r\n");
+            break;
+        default:
+            break;
+        }
+    }
+}
 
 /* 自动绘图控制 */
 uint8_t g_auto_plot_enable = 0;
@@ -28,7 +187,6 @@ uint16_t g_auto_plot_interval_ms = 100;  /* 默认100ms发送一次 */
 static uint32_t g_last_plot_time = 0;
 
 /* -------------------- Gripper stepper subsystem -------------------- */
-#include "motor_driver_X42S.h"
 
 static int16_t clamp_i16(int16_t v, int16_t lo, int16_t hi)
 {
@@ -136,9 +294,9 @@ void Mecanum_SetMotion(int16_t vx, int16_t vy, int16_t wz)
         br = (int32_t)((int64_t)br * MECANUM_PWM_MAX / maxv);
     }
 
-    /* 开环控制：直接设置电机PWM，绕过PID闭环 */
-    DC4_Motor_SetSignedSpeed(0, (int16_t)fl);
-    DC4_Motor_SetSignedSpeed(1, (int16_t)fr);
+    /* Physical channel order verified by wheel-up pair-intersection tests. */
+    DC4_Motor_SetSignedSpeed(0, (int16_t)fr);
+    DC4_Motor_SetSignedSpeed(1, (int16_t)fl);
     DC4_Motor_SetSignedSpeed(2, (int16_t)bl);
     DC4_Motor_SetSignedSpeed(3, (int16_t)br);
 }
@@ -162,14 +320,17 @@ static void App_ParseJoystickPacket(const char *packet)
         if (strcmp(type, "joystick") == 0)
         {
 #ifdef USE_MECANUM
-            int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
-            /* App lx > 0 means move right; invert it to match the chassis Y axis. */
-            int16_t vy = (int16_t)-clamp_i16((int16_t)(lx), -100, 100);
-            /* App steering-wheel RX direction is opposite to chassis yaw. */
-            int16_t wz = (int16_t)-clamp_i16((int16_t)(rx), -100, 100);
-            Mecanum_SetMotion(vx, vy, wz);
-            g_last_joystick_tick = HAL_GetTick();
-            g_joystick_command_active = 1U;
+            if (g_estop_active == 0U)
+            {
+                int16_t vx = (int16_t)clamp_i16((int16_t)(ly), -100, 100);
+                /* App lx > 0 means move right; invert it to match the chassis Y axis. */
+                int16_t vy = (int16_t)-clamp_i16((int16_t)(lx), -100, 100);
+                /* App steering-wheel RX direction is opposite to chassis yaw. */
+                int16_t wz = (int16_t)-clamp_i16((int16_t)(rx), -100, 100);
+                Mecanum_SetMotion(vx, vy, wz);
+                g_last_joystick_tick = HAL_GetTick();
+                g_joystick_command_active = 1U;
+            }
 #endif
         }
         else if (strcmp(type, "gripper") == 0)
@@ -216,9 +377,58 @@ void App_ControlTask(void)
         if (strncmp(BT_RxPacket, "gripper,", 8) == 0)
         {
             int x_speed = 0, y_speed = 0;
-            sscanf(BT_RxPacket, "gripper,%d,%d", &x_speed, &y_speed);
-            MotorDriverX42S_SetDualSpeed((int16_t)x_speed, (int16_t) y_speed);
+            if ((sscanf(BT_RxPacket, "gripper,%d,%d", &x_speed, &y_speed) == 2) &&
+                (x_speed >= -3000) && (x_speed <= 3000) &&
+                (y_speed >= -3000) && (y_speed <= 3000))
+            {
+                if (g_estop_active == 0U)
+                {
+                    MotorDriverX42S_SetDualSpeed((int16_t)x_speed,
+                                                  (int16_t)y_speed);
+                }
+            }
+            else
+            {
+                Bluetooth_SendString("[x42s:error,gripper-range=-3000..3000]\r\n");
+            }
         }
+		else if (strcmp(BT_RxPacket, "x42s,status") == 0)
+		{
+			MotorDriverX42S_QueryLiftStatus();
+		}
+		else if (strcmp(BT_RxPacket, "x42s,config") == 0)
+		{
+			MotorDriverX42S_QueryLiftConfig();
+		}
+		else if (strcmp(BT_RxPacket, "x42s,home,x") == 0)
+		{
+			if ((g_estop_active != 0U) ||
+			    !MotorDriverX42S_StartLiftHoming())
+			{
+				Bluetooth_SendString("[x42s:home,axis=x,state=busy]\r\n");
+			}
+		}
+		else if (strcmp(BT_RxPacket, "x42s,clear,x") == 0)
+		{
+			if (!MotorDriverX42S_ClearProtection('x'))
+			{
+				Bluetooth_SendString("[x42s:protection,axis=x,state=busy]\r\n");
+			}
+		}
+		else if (strcmp(BT_RxPacket, "x42s,clear,y") == 0)
+		{
+			if (!MotorDriverX42S_ClearProtection('y'))
+			{
+				Bluetooth_SendString("[x42s:protection,axis=y,state=busy]\r\n");
+			}
+		}
+		else if (strcmp(BT_RxPacket, "x42s,autorun,clear") == 0)
+		{
+			if (!MotorDriverX42S_ClearStoredAutorun())
+			{
+				Bluetooth_SendString("[x42s:autorun,state=busy]\r\n");
+			}
+		}
 				/* ---- 电磁阀1：控制夹爪开闭 ---- */
 				/* 电磁阀打开 */
         else if (strcmp(BT_RxPacket, "valve1,on") == 0)
@@ -343,6 +553,8 @@ void App_ControlTask(void)
         g_joystick_command_active = 0U;
     }
 #endif
+
+    App_X42SDiagnosticTask();
 }
 
 /* ---- PG4 急停检测（按键切换） ---- */
@@ -351,7 +563,6 @@ void App_ControlTask(void)
 
 void App_EmergencyStopCheck(void)
 {
-    static uint8_t  s_estop_active    = 0;   /* 1=急停锁住 */
     static uint32_t s_last_press_tick = 0;
     static uint8_t  s_last_level      = 0xFF; /* 未初始化 */
 
@@ -368,21 +579,23 @@ void App_EmergencyStopCheck(void)
         (HAL_GetTick() - s_last_press_tick) >= ESTOP_DEBOUNCE_MS)
     {
         s_last_press_tick = HAL_GetTick();
-        s_estop_active = s_estop_active ? 0 : 1;   /* 翻转 */
+        g_estop_active = (g_estop_active != 0U) ? 0U : 1U;
 
-        if (s_estop_active)
+        if (g_estop_active != 0U)
         {
             Mecanum_StopAll();
-            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);  /* LED 亮（低有效） */
+            g_joystick_command_active = 0U;
+            MotorDriverX42S_StopAll();
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_RESET);  /* PD9 LED on (active low) */
         }
         else
         {
-            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);    /* LED 灭（低有效） */
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_9, GPIO_PIN_SET);    /* PD9 LED off */
         }
     }
 
     /* 急停锁住期间持续强制停止电机 */
-    if (s_estop_active)
+    if (g_estop_active != 0U)
     {
         Mecanum_StopAll();
     }
