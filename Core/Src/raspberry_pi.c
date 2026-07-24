@@ -170,53 +170,73 @@ static int RaspberryPi_ParseFrame(char *frame)
 
     memset(parsed_items, 0, sizeof(parsed_items));
 
-    while (*cursor != '\0')
+    /*
+     * OpenMV sends one bare comma-separated QR payload per line. Accept the
+     * legacy bracketed "[Red,Blue]" form as well.
+     */
+    if (*cursor != '[')
     {
-        char *content;
-        char *close;
-
-        if ((item_count >= RPI_MAX_ITEMS) || (*cursor != '['))
+        if ((*cursor == '\0') || (strchr(cursor, ';') != NULL))
         {
             return 0;
         }
 
-        content = cursor + 1;
-        close = strchr(content, ']');
-        if (close == NULL)
+        if (!RaspberryPi_ParseItem(cursor, &parsed_items[0]))
         {
             return 0;
         }
-        *close = '\0';
-
-        if (!RaspberryPi_ParseItem(content, &parsed_items[item_count]))
+        item_count = 1U;
+    }
+    else
+    {
+        while (*cursor != '\0')
         {
-            return 0;
-        }
-        item_count++;
+            char *content;
+            char *close;
 
-        cursor = close + 1;
-        while ((*cursor != '\0') && RaspberryPi_IsSpace(*cursor))
-        {
+            if ((item_count >= RPI_MAX_ITEMS) || (*cursor != '['))
+            {
+                return 0;
+            }
+
+            content = cursor + 1;
+            close = strchr(content, ']');
+            if (close == NULL)
+            {
+                return 0;
+            }
+            *close = '\0';
+
+            if (!RaspberryPi_ParseItem(content, &parsed_items[item_count]))
+            {
+                return 0;
+            }
+            item_count++;
+
+            cursor = close + 1;
+            while ((*cursor != '\0') && RaspberryPi_IsSpace(*cursor))
+            {
+                cursor++;
+            }
+
+            if (*cursor == '\0')
+            {
+                break;
+            }
+            if (*cursor != ';')
+            {
+                return 0;
+            }
+
             cursor++;
-        }
-
-        if (*cursor == '\0')
-        {
-            break;
-        }
-        if (*cursor != ';')
-        {
-            return 0;
-        }
-
-        cursor++;
-        while ((*cursor != '\0') && RaspberryPi_IsSpace(*cursor))
-        {
-            cursor++;
-        }
-        if (*cursor == '\0')
-        {
-            return 0;
+            while ((*cursor != '\0') && RaspberryPi_IsSpace(*cursor))
+            {
+                cursor++;
+            }
+            if (*cursor == '\0')
+            {
+                return 0;
+            }
         }
     }
 
@@ -279,16 +299,12 @@ static void RaspberryPi_ProcessByte(uint8_t byte)
         }
 
         s_rpi_rx_buf[s_rpi_rx_index] = '\0';
-        if (s_rpi_frame_pending == 0U)
-        {
-            memcpy(s_rpi_pending_frame, s_rpi_rx_buf, (size_t)s_rpi_rx_index + 1U);
-            s_rpi_frame_pending = 1U;
-        }
-        else
-        {
-            /* Main loop did not consume the previous frame in time. */
-            g_rpi_err_count++;
-        }
+        /*
+         * OpenMV sends the same QR payload on every camera frame. Keep only
+         * the newest complete frame if the main loop is still updating OLED.
+         */
+        memcpy(s_rpi_pending_frame, s_rpi_rx_buf, (size_t)s_rpi_rx_index + 1U);
+        s_rpi_frame_pending = 1U;
 
         s_rpi_rx_index = 0U;
         return;
@@ -419,19 +435,29 @@ void RaspberryPi_Task(void)
     /* Parse complete newline-terminated frames in the main loop, not in the ISR. */
     if (s_rpi_frame_pending != 0U)
     {
+        uint8_t duplicate_frame;
+
         __disable_irq();
         memcpy(frame, s_rpi_pending_frame, sizeof(frame));
         s_rpi_frame_pending = 0U;
         __enable_irq();
 
         frame[sizeof(frame) - 1U] = '\0';
+        duplicate_frame = (uint8_t)(strcmp(g_rpi_last_frame, frame) == 0);
         strncpy(g_rpi_last_frame, frame, sizeof(g_rpi_last_frame) - 1U);
         g_rpi_last_frame[sizeof(g_rpi_last_frame) - 1U] = '\0';
 
         if (RaspberryPi_ParseFrame(frame))
         {
-            s_rpi_display_page = 0U;
-            g_rpi_data_ready = 1U;
+            /*
+             * Do not clear and redraw OLED for identical camera frames. A new
+             * QR result still updates immediately.
+             */
+            if (duplicate_frame == 0U)
+            {
+                s_rpi_display_page = 0U;
+                g_rpi_data_ready = 1U;
+            }
         }
         else
         {
@@ -534,6 +560,16 @@ static uint8_t RaspberryPi_ItemIsBallCode(const RaspberryPi_Item *item)
                      RaspberryPi_ParseU16(item->fields[1], &value2));
 }
 
+static uint8_t RaspberryPi_ItemHasNumericCodes(const RaspberryPi_Item *item)
+{
+    uint16_t value1;
+    uint16_t value2;
+
+    return (uint8_t)((item->field_count == 3U) &&
+                     RaspberryPi_ParseU16(item->fields[1], &value1) &&
+                     RaspberryPi_ParseU16(item->fields[2], &value2));
+}
+
 static void RaspberryPi_ShowEmphasizedValue(const char *text)
 {
     size_t length = strlen(text);
@@ -559,10 +595,12 @@ static void RaspberryPi_DisplaySingleItem(const RaspberryPi_Item *item)
     char line[17];
     char color1[8];
     char color2[8];
+    char color3[8];
 
     memset(line, 0, sizeof(line));
     memset(color1, 0, sizeof(color1));
     memset(color2, 0, sizeof(color2));
+    memset(color3, 0, sizeof(color3));
 
     if (item->field_count == 1U)
     {
@@ -586,7 +624,7 @@ static void RaspberryPi_DisplaySingleItem(const RaspberryPi_Item *item)
         }
         RaspberryPi_ShowEmphasizedValue(line);
     }
-    else
+    else if (RaspberryPi_ItemHasNumericCodes(item))
     {
         RaspberryPi_GetColorText(item->fields[0], color1, sizeof(color1));
         OLED_ShowString2x(0, 0, color1, 0);
@@ -596,6 +634,15 @@ static void RaspberryPi_DisplaySingleItem(const RaspberryPi_Item *item)
         OLED_ShowStringBold(0, 4, line, 16, 0);
         (void)snprintf(line, sizeof(line), "CORE:%s", item->fields[2]);
         OLED_ShowStringBold(0, 6, line, 16, 0);
+    }
+    else
+    {
+        RaspberryPi_GetColorText(item->fields[0], color1, sizeof(color1));
+        RaspberryPi_GetColorText(item->fields[1], color2, sizeof(color2));
+        RaspberryPi_GetColorText(item->fields[2], color3, sizeof(color3));
+        OLED_ShowStringBold(0, 0, "COLOR SEQUENCE", 16, 0);
+        (void)snprintf(line, sizeof(line), "%s>%s>%s", color1, color2, color3);
+        RaspberryPi_ShowEmphasizedValue(line);
     }
 }
 
@@ -627,11 +674,21 @@ static void RaspberryPi_FormatCompactItem(const RaspberryPi_Item *item,
                            (unsigned)item_number, color1, color2);
         }
     }
-    else
+    else if (RaspberryPi_ItemHasNumericCodes(item))
     {
         RaspberryPi_GetColorText(item->fields[0], color1, sizeof(color1));
         (void)snprintf(line, line_size, "%u:%s O%s C%s",
                        (unsigned)item_number, color1, item->fields[1], item->fields[2]);
+    }
+    else
+    {
+        char color3[8] = {0};
+
+        RaspberryPi_GetColorText(item->fields[0], color1, sizeof(color1));
+        RaspberryPi_GetColorText(item->fields[1], color2, sizeof(color2));
+        RaspberryPi_GetColorText(item->fields[2], color3, sizeof(color3));
+        (void)snprintf(line, line_size, "%u:%s>%s>%s",
+                       (unsigned)item_number, color1, color2, color3);
     }
 }
 
@@ -704,7 +761,7 @@ void RaspberryPi_SendReady(void)
 
 void RaspberryPi_SendEcho(void)
 {
-    /* Protocol is one-way (Raspberry Pi TX -> STM32 RX); no echo is required. */
+    /* Protocol is one-way (OpenMV TX -> STM32 RX); no echo is required. */
 }
 
 void RaspberryPi_OnUartError(void)

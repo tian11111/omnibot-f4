@@ -392,6 +392,27 @@ void App_ControlTask(void)
                 Bluetooth_SendString("[x42s:error,gripper-range=-3000..3000]\r\n");
             }
         }
+        else if (strncmp(BT_RxPacket, "x42s,level,", 11) == 0)
+        {
+            int level_speed = 0;
+            char trailing = '\0';
+
+            if ((sscanf(BT_RxPacket, "x42s,level,%d%c",
+                        &level_speed, &trailing) == 1) &&
+                (level_speed >= -X42S_LEVEL_MAX_SPEED_RPM) &&
+                (level_speed <= X42S_LEVEL_MAX_SPEED_RPM))
+            {
+                if (g_estop_active == 0U)
+                {
+                    MotorDriverX42S_SetFrontLevelSpeed((int16_t)level_speed);
+                }
+            }
+            else
+            {
+                Bluetooth_SendString(
+                    "[x42s:error,level-range=-300..300]\r\n");
+            }
+        }
 		else if (strcmp(BT_RxPacket, "x42s,status") == 0)
 		{
 			MotorDriverX42S_QueryLiftStatus();

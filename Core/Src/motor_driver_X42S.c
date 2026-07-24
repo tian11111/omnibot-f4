@@ -1313,6 +1313,25 @@ void MotorDriverX42S_SetDualSpeed(int16_t x_speed, int16_t y_speed)
          (g_axis_y.requested_speed != 0)) ? 1U : 0U;
 }
 
+void MotorDriverX42S_SetFrontLevelSpeed(int16_t speed)
+{
+    if (speed > X42S_LEVEL_MAX_SPEED_RPM)
+    {
+        speed = X42S_LEVEL_MAX_SPEED_RPM;
+    }
+    else if (speed < -X42S_LEVEL_MAX_SPEED_RPM)
+    {
+        speed = -X42S_LEVEL_MAX_SPEED_RPM;
+    }
+
+    /*
+     * X/USART6 is the front lift motor. Keep Y/USART2 stopped while the
+     * operator trims the front height. SetDualSpeed preserves homing, stall,
+     * communication-timeout, direction-lock and command-watchdog protection.
+     */
+    MotorDriverX42S_SetDualSpeed(speed, 0);
+}
+
 void MotorDriverX42S_StopAll(void)
 {
     X42S_StopOne(&g_axis_x);

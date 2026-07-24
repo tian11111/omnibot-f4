@@ -10,11 +10,12 @@ extern "C" {
 #include <stdint.h>
 
 /* The two motors use separate UARTs, so both may keep the factory address 1. */
-#define X42S_MOTOR1_ADDR          1U  /* USART2: auxiliary gripper axis (Y) */
-#define X42S_MOTOR2_ADDR          1U  /* USART6: gripper lift axis (X) */
+#define X42S_MOTOR1_ADDR          1U  /* USART2: rear lift motor (Y) */
+#define X42S_MOTOR2_ADDR          1U  /* USART6: front lift motor (X) */
 
 #define X42S_MOTOR_X_DIR_INVERT   0U
 #define X42S_MOTOR_Y_DIR_INVERT   0U
+#define X42S_LEVEL_MAX_SPEED_RPM  300
 
 typedef enum
 {
@@ -90,6 +91,7 @@ typedef struct
 void X_V2_Vel_Control(UART_HandleTypeDef *huart, uint8_t addr,
                       uint8_t dir, uint16_t acc, float vel, bool snF);
 void MotorDriverX42S_SetDualSpeed(int16_t x_speed, int16_t y_speed);
+void MotorDriverX42S_SetFrontLevelSpeed(int16_t speed);
 void MotorDriverX42S_StopAll(void);
 void MotorDriverX42S_Serial_Init(void);
 void MotorDriverX42S_ControlTask(void);
